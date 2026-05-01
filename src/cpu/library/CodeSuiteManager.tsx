@@ -1,5 +1,6 @@
 import { Subscriptions, useSubscriptions } from "@/src/utils/hooks";
 import { IElfTextSection, listElfTextSections, readElfHeader } from "../ElfParser";
+import { assetPath } from "@/src/utils/assetPath";
 
 export interface ICodeSuite {
     title: string;
@@ -46,7 +47,10 @@ export class CodeSuiteManager {
     }
 
     private async loadSuite(suite: ICodeSuite) {
-        let basePath = (process.env.BASE_URL ?? '') + '/riscv/examples/';
+        if (typeof window === 'undefined') {
+            return;
+        }
+        let basePath = assetPath('/riscv/examples/');
         let resp = await fetch(basePath + suite.fileName);
 
         if (!resp.ok) {

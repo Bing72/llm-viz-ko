@@ -10,6 +10,7 @@ import { ensureSigned32Bit } from "./comps/RiscvInsDecode";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate } from "@fortawesome/free-solid-svg-icons";
 import { ICodeEntry } from "./library/CodeSuiteManager";
+import { assetPath } from "@/src/utils/assetPath";
 
 
 export const CompExampleView: React.FC = () => {
@@ -19,7 +20,7 @@ export const CompExampleView: React.FC = () => {
     let [reloadCntr, setReloadCntr] = useState(0);
 
     useEffect(() => {
-        let basePath = (process.env.BASE_URL ?? '') + '/riscv/examples/';
+        let basePath = assetPath('/riscv/examples/');
 
         async function run() {
             let fileName = 'add_tests.elf';

@@ -20,6 +20,8 @@ import { WelcomePopup } from './WelcomePopup';
 import { KeyboardManagerContext, KeyboardOrder, useGlobalKeyboard } from '@/src/utils/keyboard';
 import { Resizer } from '../utils/Resizer';
 import { ModelSelectorToolbar } from './components/ModelSelectorToolbar';
+import { localizedLabel, useLanguage } from './Language';
+import { assetPath } from "@/src/utils/assetPath";
 
 async function fetchTensorData(url: string): Promise<ITensorSet> {
     let resp = await fetch(url);
@@ -39,6 +41,7 @@ export function LayerView() {
     let [fontAtlasData, setFontAtlasData] = useState<IFontAtlasData | null>(null);
     let layout = useScreenLayout();
     let keyboardManager = useContext(KeyboardManagerContext);
+    let { language } = useLanguage();
 
     function handleCopyCamera(ev: React.MouseEvent) {
         let camera = canvasRender?.progState.camera;
@@ -128,8 +131,8 @@ export function LayerView() {
     useEffect(() => {
         let stale = false;
         async function getData() {
-            let dataP = fetchTensorData('gpt-nano-sort-t0-partials.json');
-            let modelP = fetchTensorData('gpt-nano-sort-model.json');
+            let dataP = fetchTensorData(assetPath('/gpt-nano-sort-t0-partials.json'));
+            let modelP = fetchTensorData(assetPath('/gpt-nano-sort-model.json'));
             let nativeBindingsP = loadNativeBindings();
             let [data, model, native] = await Promise.all([dataP, modelP, nativeBindingsP]);
             if (stale) return;
@@ -186,6 +189,14 @@ export function LayerView() {
         }
     }, [canvasRender, layout]);
 
+    useEffect(() => {
+        if (canvasRender) {
+            canvasRender.progState.language = language;
+            canvasRender.markDirty();
+            canvasRender.progState.htmlSubs.notify();
+        }
+    }, [canvasRender, language]);
+
     let sidebar = canvasRender && <div className={s.sidebar}>
         <ProgramStateContext.Provider value={canvasRender.progState}>
             <WalkthroughSidebar />
@@ -198,8 +209,8 @@ export function LayerView() {
             ref={setCanvasEl}
         />
         {canvasRender && !canvasRender.progState.render && <div className='absolute flex flex-col items-center w-full h-full justify-center'>
-            <div className='text-2xl'>This application requires a WebGL2 capable browser.</div>
-            <div className='text-lg mt-2'>Please try the latest version of Chrome or Firefox.</div>
+            <div className='text-2xl'>{localizedLabel(language, 'This application requires a WebGL2 capable browser.', '이 애플리케이션은 WebGL2를 지원하는 브라우저가 필요합니다.')}</div>
+            <div className='text-lg mt-2'>{localizedLabel(language, 'Please try the latest version of Chrome or Firefox.', '최신 Chrome 또는 Firefox에서 다시 시도해 주세요.')}</div>
         </div>}
         {/* <div className={s.cursorFollow} style={{ top: pointPos.y, left: pointPos.x }} /> */}
         {canvasRender && <ProgramStateContext.Provider value={canvasRender.progState}>

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import s from './HomePage.module.scss';
 import { Tooltip } from '../utils/Tooltip';
+import { assetPath } from '../utils/assetPath';
 
 export const HomePage: React.FC = () => {
     let [emailText, setEmailText] = useState('');
@@ -30,7 +31,7 @@ export const HomePage: React.FC = () => {
     return <div className={s.homePage}>
         <div className={s.headerSection}>
             <div className={s.profilePic}>
-                <img src="/me.jpeg" alt="Profile Picture" />
+                <img src={assetPath('/me.jpeg')} alt="Profile Picture" />
             </div>
             <div className={s.nameSection}>
                 <div className={s.name}>
@@ -70,7 +71,7 @@ export const HomePage: React.FC = () => {
             <div className={s.projectCard} onClick={() => router.push('/llm')}>
                 <div className={s.cardImageWrapper}>
                     <div className={s.cardImage}>
-                        <img src="/images/llm-viz-screenshot2.png" alt="LLM Visualization Screenshot" />
+                        <img src={assetPath('/images/llm-viz-screenshot2.png')} alt="LLM Visualization Screenshot" />
                     </div>
                 </div>
                 <div className={s.cardContent}>
