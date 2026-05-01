@@ -1,6 +1,6 @@
 import React from 'react';
-import { redirect } from 'next/navigation';
+import { LlmPageClient } from '@/src/llm/LlmPageClient';
 
 export default function Page() {
-    redirect('/llm');
+    return <LlmPageClient />;
 }
