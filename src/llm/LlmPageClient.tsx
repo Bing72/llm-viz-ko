@@ -12,7 +12,6 @@ const LlmPageInner: React.FC = () => {
     return <>
         <Header
             title={localizedLabel(language, 'LLM Visualization', 'LLM 시각화')}
-            homeLabel={localizedLabel(language, 'Home', '홈')}
             right={<LanguageToggle />}
         >
             <InfoButton />

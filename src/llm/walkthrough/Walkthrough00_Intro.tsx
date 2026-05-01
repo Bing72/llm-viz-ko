@@ -96,7 +96,7 @@ export function walkthroughIntro(args: IWalkthroughArgs) {
     let tokenStr = c_str('_토큰_', 0, DimStyle.Token);
     let tokenIdxStr = c_str('_토큰 인덱스_', 0, DimStyle.TokenIdx);
 
-    commentary(wt, t6)`이 각각의 글자를 ${tokenStr}이라고 부르고, 모델이 구분할 수 있는 토큰 전체 집합을 _어휘(vocabulary)_라고 합니다:${embed(TokenVocab)}
+    commentary(wt, t6)`이 각각의 글자를 ${tokenStr}이라고 부르고, 모델이 구분할 수 있는 토큰 집합을 _어휘집(vocabulary)_이라고 합니다:${embed(TokenVocab)}
 
     이 표를 통해 각 토큰에는 숫자, 즉 ${tokenIdxStr}가 배정됩니다. 이제 이 숫자들의 시퀀스를 모델에 입력할 수 있습니다:${embed(ExampleTokenValues)}\n`;
     breakAfter();
@@ -130,7 +130,7 @@ export function walkthroughIntro(args: IWalkthroughArgs) {
     breakAfter();
 
     let c5 = commentary(wt)`3D 뷰에서 초록색 셀은 처리 중인 숫자를, 파란색 셀은 가중치를 나타냅니다. ${embed(GreenBlueCells)}
-    시퀀스 안의 각 숫자는 먼저 48개 원소를 가진 벡터로 바뀝니다(이 크기는 이 모델에서 선택한 값입니다). 이것을 _임베딩_이라고 합니다.`;
+    시퀀스 안의 각 숫자는 먼저 48개 원소를 가진 벡터로 바뀝니다(이 크기는 이 모델에서 선택한 값입니다). 이것을 _임베딩(embedding)_이라고 합니다.`;
     breakAfter(c5);
 
     {
@@ -166,7 +166,7 @@ export function walkthroughIntro(args: IWalkthroughArgs) {
     }
 
     breakAfter();
-    commentary(wt)`그다음 임베딩은 모델 아래쪽으로 전달되며, 트랜스포머라고 부르는 여러 층을 차례로 통과합니다.`;
+    commentary(wt)`그다음 임베딩은 모델의 다음 단계로 전달되며, 트랜스포머 블록이라고 부르는 여러 레이어를 차례로 통과합니다.`;
     breakAfter();
 
     {

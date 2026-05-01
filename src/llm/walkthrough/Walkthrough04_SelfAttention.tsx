@@ -31,10 +31,10 @@ export function walkthrough04_SelfAttention(args: IWalkthroughArgs) {
     wt.dimHighlightBlocks = [layout.residual0, block0.ln1.lnResid, ...head2.cubes];
 
     commentary(wt, null, 0)`
-셀프 어텐션 레이어는 트랜스포머와 GPT의 핵심이라고 할 수 있습니다. 입력 임베딩 행렬의 열들이 서로
+셀프 어텐션(self-attention) 레이어는 트랜스포머와 GPT의 핵심이라고 할 수 있습니다. 입력 임베딩 행렬(input embedding matrix)의 열들이 서로
 “대화”하는 단계이기 때문입니다. 지금까지의 단계와 다른 대부분의 단계에서는 각 열을 독립적으로 볼 수 있었습니다.
 
-셀프 어텐션 레이어는 여러 개의 헤드로 이루어져 있으며, 여기서는 그중 하나에 집중하겠습니다.`;
+셀프 어텐션 레이어는 여러 개의 어텐션 헤드(attention head)로 이루어져 있으며, 여기서는 그중 하나에 집중하겠습니다.`;
     breakAfter();
     let t_moveCamera = afterTime(null, 1.0);
     let t_highlightHeads = afterTime(null, 2.0);
@@ -43,13 +43,13 @@ export function walkthrough04_SelfAttention(args: IWalkthroughArgs) {
 
     breakAfter();
     commentary(wt)`
-첫 단계는 ${c_blockRef('정규화된 입력 임베딩 행렬', block0.ln1.lnResid)}의 ${c_dimRef('T', DimStyle.T)}개 열마다 세 개의 벡터를 만드는 것입니다.
+첫 단계는 ${c_blockRef('정규화된 입력 임베딩 행렬(normalized input embedding matrix)', block0.ln1.lnResid)}의 ${c_dimRef('T', DimStyle.T)}개 열마다 세 개의 벡터를 만드는 것입니다.
 이 벡터들이 Q, K, V 벡터입니다:
 
 ${embedInline(<ul>
     <li>Q: <BlockText blk={head2.qBlock}>쿼리 벡터</BlockText></li>
     <li>K: <BlockText blk={head2.kBlock}>키 벡터</BlockText></li>
-    <li>V: <BlockText blk={head2.vBlock}>값 벡터</BlockText></li>
+    <li>V: <BlockText blk={head2.vBlock}>값(value) 벡터</BlockText></li>
 </ul>)}
 
 이 벡터 하나를 만들기 위해 편향을 더한 행렬-벡터 곱을 수행합니다. 각 출력 셀은 입력 벡터의 선형 결합입니다.
@@ -153,7 +153,7 @@ ${embedInline((() => {
 // columns each have a K (key) vector, which represents the information that that column has, and our
 // Q (query) vector is what information is relevant to us.
     commentary(wt)`
-조회에 쓰이는 {K, V} 항목은 과거의 6개 열이고, Q 값은 현재 시점의 값입니다.
+조회 대상인 K/V 쌍은 이전 6개 위치이고, Q 값은 현재 시점의 값입니다.
 
 먼저 현재 열(${c_dimRef('t = 5', DimStyle.T)})의 ${c_blockRef('Q 벡터', head2.qBlock)}와 이전 각 열의 ${c_blockRef('K 벡터', head2.kBlock)} 사이의 내적을 계산합니다.
 그 결과는 ${c_blockRef('어텐션 행렬', head2.attnMtx)}의 대응 행(${c_dimRef('t = 5', DimStyle.T)})에 저장됩니다.`;
@@ -197,7 +197,7 @@ ${c_blockRef('V 벡터', head2.vBlock)}를 원소별로 곱합니다.`;
 
     breakAfter();
     commentary(wt)`
-그다음 이 값들을 더해 출력 벡터를 만듭니다. 따라서 출력 벡터는 높은 점수를 받은 열의 V 벡터에 크게 좌우됩니다.
+그다음 이 값들을 더해 출력 벡터를 만듭니다. 따라서 출력 벡터는 어텐션 가중치가 큰 위치의 V 벡터에 크게 좌우됩니다.
 
 이제 과정을 알았으니 모든 열에 대해 실행해 보겠습니다.`;
 

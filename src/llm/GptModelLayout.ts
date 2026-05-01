@@ -282,7 +282,7 @@ export function genGptModelLayout(shape: IModelShape, gptGpuModel: IGptModelLink
         cx: vocabSize, cz: 1, cy: C, // src has shape [vocabSize, C]
         access: { src: gptGpuModel?.vocabEmbed.weight, x: [0, 1, 0], y: [1, 0, 0], scale: 10 },
         dimX: DimStyle.n_vocab, dimY: DimStyle.C,
-        name: 'Token Embed',
+        name: 'Token Embedding',
     });
 
     let posEmbedObj = mk({
@@ -291,7 +291,7 @@ export function genGptModelLayout(shape: IModelShape, gptGpuModel: IGptModelLink
         cx: T, cz: 1, cy: C,
         access: { src: gptGpuModel?.posEmbed.weight, x: [0, 1, 0], y: [1, 0, 0], scale: 10 },
         dimX: DimStyle.T, dimY: DimStyle.C,
-        name: 'Position Embed',
+        name: 'Position Embedding',
     });
 
     let residual0 = mk({
@@ -301,7 +301,7 @@ export function genGptModelLayout(shape: IModelShape, gptGpuModel: IGptModelLink
         access: { src: gptGpuModel?.add.output, x: [0, 1, 0], y: [1, 0, T], scale: 10 },
         deps: { add: [[tokEmbedObj, 'iy'], [posEmbedObj, 'xy'], [idxObj, 'x0']], special: BlKDepSpecial.InputEmbed }, // the i comes from the idxObj lookup
         dimX: DimStyle.T, dimY: DimStyle.C,
-        name: 'Input Embed',
+        name: 'Input Embedding',
     });
     cubes.push(idxObj, tokEmbedObj, posEmbedObj, residual0);
 

@@ -21,11 +21,11 @@ export function walkthrough02_Embedding(args: IWalkthroughArgs) {
     wt.dimHighlightBlocks = [layout.idxObj, layout.tokEmbedObj, layout.posEmbedObj, layout.residual0];
 
     commentary(wt)`
-앞에서 간단한 조회 테이블을 이용해 토큰이 정수 시퀀스로 매핑되는 과정을 봤습니다.
+앞에서 간단한 룩업 테이블(lookup table)을 이용해 토큰이 정수 시퀀스로 매핑되는 과정을 봤습니다.
 이 정수, 즉 ${c_blockRef('_토큰 인덱스_', state.layout.idxObj, DimStyle.TokenIdx)}는 모델 안에서 정수가 등장하는 처음이자 마지막 지점입니다.
 이후부터는 부동소수점 수(소수)를 사용합니다.
 
-4번째 토큰(인덱스 3)이 ${c_blockRef('_입력 임베딩_', state.layout.residual0)}의 4번째 열 벡터를 만드는 데 어떻게 쓰이는지 살펴보겠습니다.`;
+4번째 토큰(인덱스 3)이 ${c_blockRef('_입력 임베딩(input embedding)_', state.layout.residual0)}의 4번째 열 벡터를 만드는 데 어떻게 쓰이는지 살펴보겠습니다.`;
     breakAfter();
 
     let t_moveCamera = afterTime(null, 1.0);
@@ -34,10 +34,10 @@ export function walkthrough02_Embedding(args: IWalkthroughArgs) {
     breakAfter();
 
     commentary(wt)`
-토큰 인덱스(여기서는 ${c_str('B', DimStyle.Token)} = ${c_dimRef('1', DimStyle.TokenIdx)})를 사용해 왼쪽 ${c_blockRef('_토큰 임베딩 행렬_', state.layout.tokEmbedObj)}의 2번째 열을 선택합니다.
+토큰 인덱스(여기서는 ${c_str('B', DimStyle.Token)} = ${c_dimRef('1', DimStyle.TokenIdx)})를 사용해 왼쪽 ${c_blockRef('_토큰 임베딩 행렬(token embedding matrix)_', state.layout.tokEmbedObj)}의 2번째 열을 선택합니다.
 여기서는 0부터 세는 인덱스를 쓰므로 첫 번째 열의 인덱스는 0입니다.
 
-그 결과 크기가 ${c_dimRef('_C_ = 48', DimStyle.C)}인 열 벡터가 만들어지며, 이를 토큰 임베딩이라고 부릅니다.
+그 결과 크기가 ${c_dimRef('_C_ = 48', DimStyle.C)}인 열 벡터가 만들어지며, 이를 토큰 임베딩(token embedding)이라고 부릅니다.
     `;
     breakAfter();
 
@@ -47,9 +47,9 @@ export function walkthrough02_Embedding(args: IWalkthroughArgs) {
     breakAfter();
 
     commentary(wt)`
-그리고 토큰 ${c_str('B', DimStyle.Token)}가 4번째 _위치_(t = ${c_dimRef('3', DimStyle.T)})에 있으므로, ${c_blockRef('_위치 임베딩 행렬_', state.layout.posEmbedObj)}의 4번째 열을 가져옵니다.
+그리고 토큰 ${c_str('B', DimStyle.Token)}가 4번째 _위치_(t = ${c_dimRef('3', DimStyle.T)})에 있으므로, ${c_blockRef('_위치 임베딩 행렬(position embedding matrix)_', state.layout.posEmbedObj)}의 4번째 열을 가져옵니다.
 
-이 역시 크기가 ${c_dimRef('_C_ = 48', DimStyle.C)}인 열 벡터를 만들며, 이를 위치 임베딩이라고 부릅니다.
+이 역시 크기가 ${c_dimRef('_C_ = 48', DimStyle.C)}인 열 벡터를 만들며, 이를 위치 임베딩(position embedding)이라고 부릅니다.
     `;
     breakAfter();
 
@@ -90,11 +90,11 @@ export function walkthrough02_Embedding(args: IWalkthroughArgs) {
 ${c_blockRef('_입력 임베딩_', state.layout.residual0)} 행렬의 각 셀에 마우스를 올리면 해당 값의 계산 과정과 출처를 볼 수 있습니다.
 
 입력 시퀀스의 모든 토큰에 이 과정을 실행하면 크기가 ${c_dimRef('_T_', DimStyle.T)} x ${c_dimRef('_C_', DimStyle.C)}인 행렬이 만들어집니다.
-${c_dimRef('_T_', DimStyle.T)}는 ${c_dimRef('_시간(time)_', DimStyle.T)}을 뜻하며, 시퀀스 뒤쪽의 토큰을 더 나중 시점으로 생각할 수 있습니다.
+${c_dimRef('_T_', DimStyle.T)}는 ${c_dimRef('_타임스텝(time step)_', DimStyle.T)}을 뜻하며, 시퀀스 뒤쪽의 토큰을 더 나중 시점으로 생각할 수 있습니다.
 ${c_dimRef('_C_', DimStyle.C)}는 ${c_dimRef('_채널(channel)_', DimStyle.C)}을 뜻하지만 특징(feature), 차원(dimension), 임베딩 크기(embedding size)라고도 부릅니다. 이 길이 ${c_dimRef('_C_', DimStyle.C)}는
 모델의 여러 “하이퍼파라미터” 중 하나이며, 모델 크기와 성능 사이의 균형을 고려해 설계자가 정합니다.
 
-이 행렬, 즉 ${c_blockRef('_입력 임베딩_', state.layout.residual0)}은 이제 모델 아래쪽으로 전달될 준비가 되었습니다.
+이 행렬, 즉 ${c_blockRef('_입력 임베딩_', state.layout.residual0)}은 이제 모델의 다음 단계로 전달될 준비가 되었습니다.
 길이가 각각 ${c_dimRef('C', DimStyle.C)}인 ${c_dimRef('T', DimStyle.T)}개의 열 묶음은 이 가이드 전체에서 계속 보게 될 형태입니다.
 `;
 
