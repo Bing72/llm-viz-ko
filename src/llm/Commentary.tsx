@@ -12,6 +12,7 @@ import clsx from 'clsx';
 import { TocDiagram } from './components/TocDiagram';
 import { BlockText, DimensionText } from './components/CommentaryHelpers';
 import { useRequestAnimationFrame } from '../utils/hooks';
+import { localizeText, localizedLabel, useLanguage } from './Language';
 
 export function jumpToPhase(wt: IWalkthrough, phaseId: Phase) {
     wt.time = 0;
@@ -48,6 +49,7 @@ export function jumpPhase(wt: IWalkthrough, phaseDelta: number) {
 
 export const Commentary: React.FC = () => {
     let progState = useProgramState();
+    let { language } = useLanguage();
     let [parasEl, setParasEl] = React.useState<HTMLDivElement | null>(null);
     // let [rangeInfo, setRangeInfo] = React.useState<{ start: number, end: number, width: number }>({ start: 0, end: 0, width: 1 });
     let wt = progState.walkthrough;
@@ -261,7 +263,7 @@ export const Commentary: React.FC = () => {
             <button className={clsx(s.btn, s.prevNextBtn)} onClick={() => handlePhaseDeltaClick(-1)}>
                 <FontAwesomeIcon icon={faChevronLeft} />
             </button>
-            <div className={s.chapterTitle}>Chapter: {phase.title}</div>
+            <div className={s.chapterTitle}>{localizedLabel(language, 'Chapter', '챕터')}: {localizeText(phase.title, language)}</div>
             <button className={clsx(s.btn, s.prevNextBtn)} onClick={() => handlePhaseDeltaClick(1)}>
                 <FontAwesomeIcon icon={faChevronRight} />
             </button>
@@ -273,7 +275,7 @@ export const Commentary: React.FC = () => {
                 </div>
                 <div className={s.divider} />
                 <div className={s.walkthroughParas} ref={setParasEl}>
-                    {walkthroughToParagraphs(wt, nodes)}
+                    {walkthroughToParagraphs(wt, nodes, language)}
                     <SectionHighlight key={nextBreak} top={rangeInfo.start} height={rangeInfo.end - rangeInfo.start} width={rangeInfo.width} />
                     {!wt.running && <>
                         <div className={s.dividerLine} style={{ top: currPos }} />
@@ -284,10 +286,10 @@ export const Commentary: React.FC = () => {
         </div>
         <div className={s.controls}>
             <button className={clsx(s.btn, "flex-[2] bg-blue-300 border border-blue-600 hover:bg-blue-400")} onClick={handleContinueClick}>
-                <div>Continue</div>
+                <div>{localizedLabel(language, 'Continue', '계속')}</div>
             </button>
             <button className={clsx(s.btn, "ml-4 min-w-[100px] bg-white border border-blue-600 hover:bg-blue-200")} onClick={handleAdvanceClick}>
-                <div>Skip</div>
+                <div>{localizedLabel(language, 'Skip', '건너뛰기')}</div>
             </button>
         </div>
     </>;
@@ -301,7 +303,7 @@ interface INode {
     end: number;
 }
 
-export function walkthroughToParagraphs(wt: IWalkthrough, nodes: INode[]) {
+export function walkthroughToParagraphs(wt: IWalkthrough, nodes: INode[], language = wt.language ?? 'ko') {
 
     function genCommentary(c: ICommentary, t: number) {
 
@@ -320,7 +322,7 @@ export function walkthroughToParagraphs(wt: IWalkthrough, nodes: INode[]) {
 
         for (let i = 0; i < c.strings.length; i++) {
 
-            let strRaw = c.strings[i];
+            let strRaw = localizeText(c.strings[i], language);
             if (strRaw.trim()) {
                 let paras = strRaw.split('\n\n');
                 for (let j = 0; j < paras.length; j++) {
@@ -348,7 +350,7 @@ export function walkthroughToParagraphs(wt: IWalkthrough, nodes: INode[]) {
                 }
                 if (val.color) {
                     let color = val.color.toHexColor();
-                    let content = markupSimple(val.str);
+                    let content = markupSimple(localizeText(val.str, language));
                     if (val.dim) {
                         paraItems.push(<DimensionText key={paraKeyId++} style={{ color }} dim={val.dim}>{content}</DimensionText>);
                     } else if (val.blk) {
@@ -521,10 +523,11 @@ const SpaceToContinueHint: React.FC<{
     top: number;
     onClick: React.MouseEventHandler,
 }> = ({ top, onClick }) => {
+    let { language } = useLanguage();
 
     return <div className={"absolute flex justify-center pointer-events-none top-0 left-0 right-0"} style={{ top, transform: `translateY(20px)` }}>
         <div className={"flex-shrink py-2 px-4 bg-blue-200 shadow-md rounded-3xl pointer-events-auto text-black cursor-pointer"} onClick={onClick}>
-             Press <span className={s.key}>Space</span> to continue
+             {language === 'en' ? <>Press <span className={s.key}>Space</span> to continue</> : <>계속하려면 <span className={s.key}>Space</span>를 누르세요</>}
         </div>
     </div>;
 }

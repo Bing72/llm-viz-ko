@@ -23,6 +23,7 @@ import { IBlockRender, initBlockRender } from "./render/blockRender";
 import { ILayout } from "../utils/layout";
 import { DimStyle } from "./walkthrough/WalkthroughTools";
 import { Subscriptions } from "../utils/hooks";
+import { LlmLanguage } from "./Language";
 
 export interface IProgramState {
     native: NativeFunctions | null;
@@ -44,6 +45,7 @@ export interface IProgramState {
     movement: IMovementInfo;
     display: IDisplayState;
     pageLayout: ILayout;
+    language: LlmLanguage;
     markDirty: () => void;
 }
 
@@ -216,7 +218,8 @@ export function initProgramState(canvasEl: HTMLCanvasElement, fontAtlasData: IFo
             width: 0,
             isDesktop: true,
             isPhone: true,
-        }
+        },
+        language: 'ko',
     };
 }
 

@@ -24,20 +24,20 @@ export function walkthrough07_Mlp(args: IWalkthroughArgs) {
 
     commentary(wt)`
 
-The next half of the transformer block, after the self-attention, is the MLP (multi-layer
-perceptron). A bit of a mouthful, but here it's a simple neural network with two layers.
+셀프 어텐션 다음에 오는 트랜스포머 블록의 나머지 절반은 MLP(다층 퍼셉트론)입니다.
+이름은 조금 길지만, 여기서는 두 개의 레이어를 가진 단순한 신경망입니다.
 
-Like with self-attention, we perform a ${c_blockRef('layer normalization', block.ln2.lnResid)} before the vectors enter the MLP.
+셀프 어텐션 때와 마찬가지로, 벡터가 MLP에 들어가기 전에 ${c_blockRef('레이어 정규화', block.ln2.lnResid)}를 수행합니다.
 
-In the MLP, we put each of our ${c_dimRef('C = 48', DimStyle.C)} length column vectors (independently) through:
+MLP에서는 길이가 ${c_dimRef('C = 48', DimStyle.C)}인 각 열 벡터를 서로 독립적으로 다음 단계에 통과시킵니다:
 
-1. A ${c_blockRef('linear transformation', block.mlpFcWeight)} with a ${c_blockRef('bias', block.mlpFcBias)} added, to a vector of length ${c_dimRef('4 * C', DimStyle.C4)}.
+1. ${c_blockRef('편향', block.mlpFcBias)}이 더해진 ${c_blockRef('선형 변환', block.mlpFcWeight)}으로 길이 ${c_dimRef('4 * C', DimStyle.C4)}의 벡터를 만듭니다.
 
-2. A GELU activation function (element-wise)
+2. GELU 활성화 함수를 원소별로 적용합니다.
 
-3. A ${c_blockRef('linear transformation', block.mlpProjWeight)} with a ${c_blockRef('bias', block.mlpProjBias)} added, back to a vector of length ${c_dimRef('C', DimStyle.C)}
+3. 다시 ${c_blockRef('편향', block.mlpProjBias)}이 더해진 ${c_blockRef('선형 변환', block.mlpProjWeight)}으로 길이 ${c_dimRef('C', DimStyle.C)}의 벡터로 되돌립니다.
 
-Let's track one of those vectors:
+그 벡터 중 하나를 따라가 보겠습니다:
 `;
     breakAfter();
 
@@ -46,8 +46,8 @@ Let's track one of those vectors:
     breakAfter();
 
 commentary(wt)`
-We first run through the matrix-vector multiplication with bias added, expanding the vector to length ${c_dimRef('4 * C', DimStyle.C4)}. (Note that the output matrix is transposed here.
-This is purely for vizualization purposes.)
+먼저 편향을 더한 행렬-벡터 곱을 실행해 벡터를 길이 ${c_dimRef('4 * C', DimStyle.C4)}로 확장합니다. (여기서는 출력 행렬이 전치되어 있습니다.
+이는 순전히 시각화를 위한 배치입니다.)
 `;
     breakAfter();
 
@@ -56,8 +56,8 @@ This is purely for vizualization purposes.)
     breakAfter();
 
 commentary(wt)`
-Next, we apply the GELU activation function to each element of the vector. This is a key part of any neural network, where we introduce some non-linearity into the model. The specific function used, GELU,
-looks a lot like a ReLU function (computed as ${<code>max(0, x)</code>}), but it has a smooth curve rather than a sharp corner.
+다음으로 벡터의 각 원소에 GELU 활성화 함수를 적용합니다. 이는 모델에 비선형성을 넣는 신경망의 핵심 요소입니다. 여기서 쓰는 GELU는
+ReLU 함수(${<code>max(0, x)</code>}로 계산)와 비슷하게 생겼지만, 날카로운 꺾임 대신 부드러운 곡선을 가집니다.
 
 ${<ReluGraph />}
 
@@ -69,7 +69,7 @@ ${<ReluGraph />}
     breakAfter();
 
 commentary(wt)`
-We then project the vector back down to length ${c_dimRef('C', DimStyle.C)} with another matrix-vector multiplication with bias added.
+그다음 편향을 더한 또 다른 행렬-벡터 곱으로 벡터를 다시 길이 ${c_dimRef('C', DimStyle.C)}로 투영합니다.
 `;
     breakAfter();
 
@@ -78,7 +78,7 @@ We then project the vector back down to length ${c_dimRef('C', DimStyle.C)} with
     breakAfter();
 
 commentary(wt)`
-Like in the self-attention + projection section, we add the result of the MLP to its input, element-wise.
+셀프 어텐션 + 프로젝션 섹션에서처럼, MLP의 결과를 입력에 원소별로 더합니다.
 `;
     breakAfter();
 
@@ -86,7 +86,7 @@ Like in the self-attention + projection section, we add the result of the MLP to
 
     breakAfter();
 commentary(wt)`
-We can now repeat this process for all of the columns in the input.`;
+이제 입력의 모든 열에 대해 이 과정을 반복할 수 있습니다.`;
 
     breakAfter();
 
@@ -97,7 +97,7 @@ We can now repeat this process for all of the columns in the input.`;
     breakAfter();
 
 commentary(wt)`
-And that's the MLP completed. We now have the output of the transformer block, which is ready to be passed to the next block.
+이렇게 MLP가 완료됩니다. 이제 트랜스포머 블록의 출력이 만들어졌고, 다음 블록으로 전달될 준비가 되었습니다.
 `;
 
     let targetIdx = 3;

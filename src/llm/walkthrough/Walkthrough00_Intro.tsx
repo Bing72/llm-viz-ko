@@ -58,10 +58,10 @@ export function walkthroughIntro(args: IWalkthroughArgs) {
 
     setInitialCamera(state, new Vec3(184.744, 0.000, -636.820), new Vec3(296.000, 16.000, 13.500));
 
-    let c0 = commentary(wt, null, 0)`Welcome to the walkthrough of the GPT large language model! Here we'll explore the model _nano-gpt_, with a mere 85,000 parameters.
+    let c0 = commentary(wt, null, 0)`GPT 대규모 언어 모델 가이드에 오신 것을 환영합니다! 여기서는 겨우 85,000개의 매개변수를 가진 _nano-gpt_ 모델을 살펴봅니다.
 
-Its goal is a simple one: take a sequence of six letters: ${embed(ExampleInputOutput)}
-and sort them in alphabetical order, i.e. to "ABBBCC".`;
+이 모델의 목표는 단순합니다. 여섯 글자로 된 입력 ${embed(ExampleInputOutput)}
+을 받아 알파벳 순서, 즉 "ABBBCC"로 정렬하는 것입니다.`;
 
     if (c0.t > 0) {
         for (let cube of layout.cubes) {
@@ -93,12 +93,12 @@ and sort them in alphabetical order, i.e. to "ABBBCC".`;
 
     breakAfter();
 
-    let tokenStr = c_str('_token_', 0, DimStyle.Token);
-    let tokenIdxStr = c_str('_token index_', 0, DimStyle.TokenIdx);
+    let tokenStr = c_str('_토큰_', 0, DimStyle.Token);
+    let tokenIdxStr = c_str('_토큰 인덱스_', 0, DimStyle.TokenIdx);
 
-    commentary(wt, t6)`We call each of these letters a ${tokenStr}, and the set of the model's different tokens make up its _vocabulary_:${embed(TokenVocab)}
+    commentary(wt, t6)`이 각각의 글자를 ${tokenStr}이라고 부르고, 모델이 구분할 수 있는 토큰 전체 집합을 _어휘(vocabulary)_라고 합니다:${embed(TokenVocab)}
 
-    From this table, each token is assigned a number, its ${tokenIdxStr}. And now we can enter this sequence of numbers into the model:${embed(ExampleTokenValues)}\n`;
+    이 표를 통해 각 토큰에는 숫자, 즉 ${tokenIdxStr}가 배정됩니다. 이제 이 숫자들의 시퀀스를 모델에 입력할 수 있습니다:${embed(ExampleTokenValues)}\n`;
     breakAfter();
 
     let t7 = afterTime(null, 1.5, 0.5);
@@ -129,8 +129,8 @@ and sort them in alphabetical order, i.e. to "ABBBCC".`;
 
     breakAfter();
 
-    let c5 = commentary(wt)`In the 3d view, each green cell represents a number being processed, and each blue cell is a weight. ${embed(GreenBlueCells)}
-    Each number in the sequence first gets turned into a 48 element vector (a size chosen for this particular model). This is called an _embedding_.`;
+    let c5 = commentary(wt)`3D 뷰에서 초록색 셀은 처리 중인 숫자를, 파란색 셀은 가중치를 나타냅니다. ${embed(GreenBlueCells)}
+    시퀀스 안의 각 숫자는 먼저 48개 원소를 가진 벡터로 바뀝니다(이 크기는 이 모델에서 선택한 값입니다). 이것을 _임베딩_이라고 합니다.`;
     breakAfter(c5);
 
     {
@@ -166,7 +166,7 @@ and sort them in alphabetical order, i.e. to "ABBBCC".`;
     }
 
     breakAfter();
-    commentary(wt)`The embedding is then passed through the model, going through a series of layers, called transformers, before reaching the bottom.`;
+    commentary(wt)`그다음 임베딩은 모델 아래쪽으로 전달되며, 트랜스포머라고 부르는 여러 층을 차례로 통과합니다.`;
     breakAfter();
 
     {
@@ -220,11 +220,11 @@ and sort them in alphabetical order, i.e. to "ABBBCC".`;
         }
     }
 
-    commentary(wt)`So what's the output? A prediction of the next token in the sequence. So at the 6th entry, we get probabilities that the next token is
-        going to be 'A', 'B', or 'C'.`
+    commentary(wt)`그렇다면 출력은 무엇일까요? 시퀀스의 다음 토큰에 대한 예측입니다. 따라서 6번째 위치에서는 다음 토큰이
+        'A', 'B', 'C' 중 무엇일지에 대한 확률을 얻습니다.`
 
-    commentary(wt)`In this case, the model is pretty sure it's going to be 'A'. Now, we can feed this prediction back into the top of the model, and repeat
-    the entire process.`;
+    commentary(wt)`이 예시에서 모델은 다음 토큰이 'A'일 가능성이 높다고 판단합니다. 이제 이 예측을 다시 모델 맨 위에 넣고
+    전체 과정을 반복할 수 있습니다.`;
 
     breakAfter();
 }
@@ -393,10 +393,10 @@ const TokenVocab: React.FC = () => {
         <table className={s.table}>
             <tbody>
                 <tr className={s.tokString} style={{ color: dimStyleColor(DimStyle.Token).toHexColor() }}>
-                    <th>token</th><td>A</td><td>B</td><td>C</td>
+                    <th>토큰</th><td>A</td><td>B</td><td>C</td>
                 </tr>
                 <tr className={s.tokIndex} style={{ color: dimStyleColor(DimStyle.TokenIdx).toHexColor() }}>
-                    <th>index</th><td>0</td><td>1</td><td>2</td>
+                    <th>인덱스</th><td>0</td><td>1</td><td>2</td>
                 </tr>
             </tbody>
         </table>
@@ -416,12 +416,12 @@ const GreenBlueCells: React.FC = () => {
             <div className={s.cellInfoCol}>
                 <Cell nums={greenNums} color={greenColor} mul={0.5} />
                 <Graph nums={greenNums} color={greenColor} setNums={setGreenNums} />
-                <div className={s.cellInfoText}>being processed</div>
+                <div className={s.cellInfoText}>처리 중인 값</div>
             </div>
             <div className={s.cellInfoCol}>
                 <Cell nums={blueNums} color={blueColor} mul={1} />
                 <Graph nums={blueNums} color={blueColor} setNums={setBlueNums} />
-                <div className={s.cellInfoText}>weights</div>
+                <div className={s.cellInfoText}>가중치</div>
             </div>
         </div>
     </div>

@@ -13,46 +13,38 @@ export function walkthrough05_Softmax(args: IWalkthroughArgs) {
 
     let c0 = commentary(wt, null, 0)`
 
-The softmax operation is used as part of self-attention, as seen in the previous section, and it
-will also appear at the very end of the model.
+소프트맥스 연산은 이전 섹션에서 본 것처럼 셀프 어텐션의 일부로 사용되며, 모델의 맨 마지막에도 다시 등장합니다.
 
-Its goal is to take a vector and normalize its values so that they sum to 1.0. However, it's not as
-simple as dividing by the sum. Instead, each input value is first exponentiated.
+목표는 벡터를 받아 각 값의 합이 1.0이 되도록 정규화하는 것입니다. 하지만 단순히 합으로 나누는 것만으로 끝나지는 않습니다.
+먼저 각 입력값에 지수 함수를 적용합니다.
 
   a = exp(x_1)
 
-This has the effect of making all values positive. Once we have a vector of our exponentiated
-values, we can then divide each value by the sum of all the values. This will ensure that the sum
-of the values is 1.0. Since all the exponentiated values are positive, we know that the resulting
-values will be between 0.0 and 1.0, which provides a probability distribution over the original values.
+이렇게 하면 모든 값이 양수가 됩니다. 지수화된 값들의 벡터를 얻은 뒤에는 각 값을 전체 합으로 나눕니다.
+그러면 값들의 합이 1.0이 됩니다. 지수화된 값은 모두 양수이므로 결과값은 0.0과 1.0 사이에 놓이고,
+원래 값들에 대한 확률 분포로 해석할 수 있습니다.
 
-That's it for softmax: simply exponentiate the values and then divide by the sum.
+소프트맥스의 핵심은 이것입니다. 값을 지수화한 뒤 합으로 나눕니다.
 
-However, there's a slight complication. If any of the input values are quite large, then the
-exponentiated values will be very large. We'll end up dividing a large number by a very large number,
-and this can cause issues with floating-point arithmetic.
+다만 작은 문제가 하나 있습니다. 입력값 중 일부가 아주 크면 지수화된 값은 훨씬 더 커집니다.
+그러면 큰 수를 매우 큰 수로 나누게 되고, 부동소수점 연산에서 문제가 생길 수 있습니다.
 
-One useful property of the softmax operation is that if we add a constant to all the input values,
-the result will be the same. So we can find the largest value in the input vector and subtract it
-from all the values. This ensures that the largest value is 0.0, and the softmax remains numerically
-stable.
+소프트맥스의 유용한 성질 중 하나는 모든 입력값에 같은 상수를 더해도 결과가 같다는 것입니다.
+따라서 입력 벡터에서 가장 큰 값을 찾아 모든 값에서 빼 줄 수 있습니다. 그러면 가장 큰 값이 0.0이 되어
+소프트맥스를 수치적으로 안정적으로 계산할 수 있습니다.
 
-Let's take a look at the softmax operation in the context of the self-attention layer. Our input
-vector for each softmax operation is a row of the self-attention matrix (but only up to the diagonal).
+셀프 어텐션 레이어의 맥락에서 소프트맥스 연산을 살펴보겠습니다. 각 소프트맥스 연산의 입력 벡터는
+셀프 어텐션 행렬의 한 행입니다(대각선 위치까지만 사용합니다).
 
-Like with layer normalization, we have an intermediate step where we store some aggregation values
-to keep the process efficient.
+레이어 정규화와 마찬가지로, 계산을 효율적으로 하기 위해 몇 가지 집계값을 저장하는 중간 단계가 있습니다.
 
-For each row, we store the max value in the row and the sum of the shifted & exponentiated values.
-Then, to produce the corresponding output row, we can perform a small set of operations: subtract the
-max, exponentiate, and divide by the sum.
+각 행마다 그 행의 최댓값과, 값을 이동시킨 뒤 지수화한 값들의 합을 저장합니다.
+그다음 대응하는 출력 행을 만들기 위해 최댓값을 빼고, 지수화하고, 합으로 나누는 작은 연산 묶음을 수행합니다.
 
-What's with the name "softmax"? The "hard" version of this operation, called argmax, simply finds
-the maximum value, sets it to 1.0, and assigns 0.0 to all other values. In contrast, the softmax
-operation serves as a "softer" version of that. Due to the exponentiation involved in softmax, the
-largest value is emphasized and pushed towards 1.0, while still maintaining a probability distribution
-over all input values. This allows for a more nuanced representation that captures not only the most
-likely option but also the relative likelihood of other options.
+왜 이름이 “소프트맥스(softmax)”일까요? 이 연산의 “hard” 버전이라고 볼 수 있는 argmax는 최댓값을 찾아 1.0으로 만들고
+나머지 값은 모두 0.0으로 만듭니다. 반대로 소프트맥스는 그보다 “부드러운” 버전입니다. 소프트맥스의 지수화 덕분에
+가장 큰 값은 강조되어 1.0에 가까워지지만, 모든 입력값에 대한 확률 분포는 유지됩니다. 그래서 가장 가능성 높은 선택뿐 아니라
+다른 선택지들의 상대적인 가능성까지 더 섬세하게 표현할 수 있습니다.
 `;
 
 }

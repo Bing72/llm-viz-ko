@@ -19,11 +19,10 @@ export function walkthrough06_Projection(args: IWalkthroughArgs) {
 
     commentary(wt, null, 0)`
 
-After the self-attention process, we have outputs from each of the heads. These outputs are the
-appropriately mixed V vectors, influenced by the Q and K vectors.
+셀프 어텐션 과정이 끝나면 각 헤드에서 출력이 나옵니다. 이 출력은 Q와 K 벡터의 영향을 받아 적절히 섞인 V 벡터입니다.
 
-To combine the ${c_blockRef('output vectors', outBlocks)} from each head, we simply stack them on top of each other. So, for time
-${c_dimRef('t = 4', DimStyle.T)}, we go from 3 vectors of length ${c_dimRef('A = 16', DimStyle.A)} to 1 vector of length ${c_dimRef('C = 48', DimStyle.C)}.`;
+각 헤드의 ${c_blockRef('출력 벡터', outBlocks)}를 합치기 위해 단순히 위아래로 쌓습니다. 따라서 시점
+${c_dimRef('t = 4', DimStyle.T)}에서는 길이가 ${c_dimRef('A = 16', DimStyle.A)}인 벡터 3개가 길이 ${c_dimRef('C = 48', DimStyle.C)}인 벡터 1개가 됩니다.`;
 
     breakAfter();
 
@@ -35,11 +34,10 @@ ${c_dimRef('t = 4', DimStyle.T)}, we go from 3 vectors of length ${c_dimRef('A =
 
     commentary(wt)`
 
-It's worth noting that in GPT, the length of the vectors within a head (${c_dimRef('A = 16', DimStyle.A)}) is equal to ${c_dimRef('C', DimStyle.C)} / num_heads.
-This ensures that when we stack them back together, we get the original length, ${c_dimRef('C', DimStyle.C)}.
+GPT에서는 한 헤드 안의 벡터 길이(${c_dimRef('A = 16', DimStyle.A)})가 ${c_dimRef('C', DimStyle.C)} / 헤드 수와 같다는 점이 중요합니다.
+그래야 다시 쌓았을 때 원래 길이인 ${c_dimRef('C', DimStyle.C)}가 됩니다.
 
-From here, we perform the projection to get the output of the layer. This is a simple matrix-vector
-multiplication on a per-column basis, with a bias added.`;
+여기서부터는 레이어의 출력을 얻기 위해 프로젝션을 수행합니다. 이는 각 열마다 편향을 더한 단순한 행렬-벡터 곱입니다.`;
 
     breakAfter();
 
@@ -49,9 +47,8 @@ multiplication on a per-column basis, with a bias added.`;
 
     commentary(wt)`
 
-Now we have the output of the self-attention layer. Instead of passing this output directly to the
-next phase, we add it element-wise to the input embedding. This process, denoted by the green
-vertical arrow, is called the _residual connection_ or _residual pathway_.
+이제 셀프 어텐션 레이어의 출력이 생겼습니다. 이 출력을 다음 단계로 바로 넘기는 대신, 입력 임베딩에 원소별로 더합니다.
+초록색 세로 화살표로 표시된 이 과정을 _잔차 연결_ 또는 _잔차 경로_라고 부릅니다.
 `;
 
     breakAfter();
@@ -65,11 +62,9 @@ vertical arrow, is called the _residual connection_ or _residual pathway_.
 
     commentary(wt)`
 
-Like layer normalization, the residual pathway is important for enabling effective learning in deep
-neural networks.
+레이어 정규화와 마찬가지로, 잔차 경로는 깊은 신경망이 효과적으로 학습되도록 돕는 중요한 요소입니다.
 
-Now with the result of self-attention in hand, we can pass it onto the next section of the transformer:
-the feed-forward network.
+이제 셀프 어텐션의 결과가 준비되었으니, 트랜스포머의 다음 부분인 피드포워드 네트워크로 넘길 수 있습니다.
 `;
 
     breakAfter();

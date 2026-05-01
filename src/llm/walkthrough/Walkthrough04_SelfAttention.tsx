@@ -31,11 +31,10 @@ export function walkthrough04_SelfAttention(args: IWalkthroughArgs) {
     wt.dimHighlightBlocks = [layout.residual0, block0.ln1.lnResid, ...head2.cubes];
 
     commentary(wt, null, 0)`
-The self-attention layer is perhaps the heart of the Transformer and of GPT. It's the phase where the
-columns in our input embedding matrix "talk" to each other. Up until now, and in all other phases,
-the columns can be regarded independently.
+셀프 어텐션 레이어는 트랜스포머와 GPT의 핵심이라고 할 수 있습니다. 입력 임베딩 행렬의 열들이 서로
+“대화”하는 단계이기 때문입니다. 지금까지의 단계와 다른 대부분의 단계에서는 각 열을 독립적으로 볼 수 있었습니다.
 
-The self-attention layer is made up of several heads, and we'll focus on one of them for now.`;
+셀프 어텐션 레이어는 여러 개의 헤드로 이루어져 있으며, 여기서는 그중 하나에 집중하겠습니다.`;
     breakAfter();
     let t_moveCamera = afterTime(null, 1.0);
     let t_highlightHeads = afterTime(null, 2.0);
@@ -44,18 +43,18 @@ The self-attention layer is made up of several heads, and we'll focus on one of 
 
     breakAfter();
     commentary(wt)`
-The first step is to produce three vectors for each of the ${c_dimRef('T', DimStyle.T)} columns from the ${c_blockRef('normalized input embedding matrix', block0.ln1.lnResid)}.
-These vectors are the Q, K, and V vectors:
+첫 단계는 ${c_blockRef('정규화된 입력 임베딩 행렬', block0.ln1.lnResid)}의 ${c_dimRef('T', DimStyle.T)}개 열마다 세 개의 벡터를 만드는 것입니다.
+이 벡터들이 Q, K, V 벡터입니다:
 
 ${embedInline(<ul>
-    <li>Q: <BlockText blk={head2.qBlock}>Query vector</BlockText></li>
-    <li>K: <BlockText blk={head2.kBlock}>Key vector</BlockText></li>
-    <li>V: <BlockText blk={head2.vBlock}>Value vector</BlockText></li>
+    <li>Q: <BlockText blk={head2.qBlock}>쿼리 벡터</BlockText></li>
+    <li>K: <BlockText blk={head2.kBlock}>키 벡터</BlockText></li>
+    <li>V: <BlockText blk={head2.vBlock}>값 벡터</BlockText></li>
 </ul>)}
 
-To produce one of these vectors, we perform a matrix-vector multiplication with a bias added. Each
-output cell is some linear combination of the input vector. E.g. for the ${c_blockRef('Q vectors', head2.qBlock)}, this is done with a dot product between
-a row of the ${c_blockRef('Q-weight matrix', head2.qWeightBlock)} and a column of the ${c_blockRef('input matrix', block0.ln1.lnResid)}.`;
+이 벡터 하나를 만들기 위해 편향을 더한 행렬-벡터 곱을 수행합니다. 각 출력 셀은 입력 벡터의 선형 결합입니다.
+예를 들어 ${c_blockRef('Q 벡터', head2.qBlock)}는 ${c_blockRef('Q 가중치 행렬', head2.qWeightBlock)}의 한 행과
+${c_blockRef('입력 행렬', block0.ln1.lnResid)}의 한 열 사이의 내적으로 계산됩니다.`;
     breakAfter();
 
     let t_focusQCol = afterTime(null, 1.0);
@@ -63,9 +62,8 @@ a row of the ${c_blockRef('Q-weight matrix', head2.qWeightBlock)} and a column o
 
     breakAfter();
     commentary(wt)`
-The dot product operation, which we'll see a lot of, is quite simple: We pair each element from
-the first vector with the corresponding element from the second vector, multiply the pairs together
-and then add the results up.`;
+앞으로 자주 보게 될 내적 연산은 꽤 단순합니다. 첫 번째 벡터의 각 원소를 두 번째 벡터의 대응 원소와 짝지어
+서로 곱한 뒤, 그 결과를 모두 더합니다.`;
     breakAfter();
 
     let t_moveDotCells = afterTime(null, 2.0, 0.5);
@@ -79,11 +77,10 @@ and then add the results up.`;
     breakAfter();
     commentary(wt)`
 
-This is a general and simple way of ensuring each output element can be influenced by all the
-elements in the input vector (where that influence is determined by the weights). Hence its frequent
-appearance in neural networks.
+이 방식은 각 출력 원소가 입력 벡터의 모든 원소로부터 영향을 받을 수 있게 하는 일반적이고 단순한 방법입니다
+(그 영향의 정도는 가중치가 결정합니다). 그래서 신경망에서 매우 자주 등장합니다.
 
-We repeat this operation for each output cell in the Q, K, V vectors:`;
+Q, K, V 벡터의 각 출력 셀에 이 연산을 반복합니다:`;
     breakAfter();
 
     let t_revertFocusCol = afterTime(null, 0.25, 0.5);
@@ -92,22 +89,19 @@ We repeat this operation for each output cell in the Q, K, V vectors:`;
 
     breakAfter();
     commentary(wt)`
-What do we do with our Q (query), K (key), and V (value) vectors? The naming
-gives us a hint: "key" and "value" are reminiscent of a dictionary in software, with keys mapping to
-values. Then "query" is what we use to look up the value.
+Q(쿼리), K(키), V(값) 벡터로 무엇을 할까요? 이름이 힌트를 줍니다. “키”와 “값”은 소프트웨어의 딕셔너리처럼
+키가 값에 매핑되는 구조를 떠올리게 합니다. “쿼리”는 그 값을 찾아볼 때 사용하는 것입니다.
 
 ${embedInline(<div className='ml-4'>
-    <div className='mt-1 text-center italic'>Software analogy</div>
-    <div className='text-sm mt-1 mb-1 text-gray-600'>Lookup table:</div>
+    <div className='mt-1 text-center italic'>소프트웨어 비유</div>
+    <div className='text-sm mt-1 mb-1 text-gray-600'>조회 테이블:</div>
     <div className='font-mono'>{'table = { "key0": "value0", "key1": "value1", ... }'}</div>
-    <div className='text-sm mt-1 mb-1 text-gray-600'>Query Process:</div>
+    <div className='text-sm mt-1 mb-1 text-gray-600'>쿼리 과정:</div>
     <div className='font-mono'>{'table["key1"] => "value1"'}</div>
 </div>)}
 
-In the case of self-attention, instead of returning a single entry, we return some weighted
-combination of the entries. To find that weighting, we take a dot product between a Q vector and each
-of the K vectors. We normalize that weighting, before finally using it to multiply with the
-corresponding V vector, and then adding them all up.
+셀프 어텐션에서는 단일 항목 하나를 반환하는 대신 여러 항목의 가중합을 반환합니다. 그 가중치를 찾기 위해 Q 벡터와
+각 K 벡터 사이의 내적을 계산합니다. 그런 다음 그 가중치를 정규화하고, 대응하는 V 벡터에 곱한 뒤 모두 더합니다.
 
 ${embedInline((() => {
     let keyCol = dimStyleColor(DimStyle.Intermediates);
@@ -115,8 +109,8 @@ ${embedInline((() => {
     let qCol = dimStyleColor(DimStyle.Aggregates);
 
     return <div className='ml-4'>
-        <div className='mt-1 text-center italic'>Self Attention</div>
-        <div className='text-sm mt-2 mb-1 text-gray-600'>Lookup table:</div>
+        <div className='mt-1 text-center italic'>셀프 어텐션</div>
+        <div className='text-sm mt-2 mb-1 text-gray-600'>조회 테이블:</div>
         <div className='font-mono flex items-center'>K:
             <div className='mx-2 my-1'>{makeTextVector(keyCol)}</div>
             <div className='mx-2 my-1'>{makeTextVector(keyCol)}</div>
@@ -127,7 +121,7 @@ ${embedInline((() => {
             <div className='mx-2 my-1'>{makeTextVector(valCol)}</div>
             <div className='mx-2 my-1'>{makeTextVector(valCol)}</div>
         </div>
-        <div className='text-sm mt-2 mb-1 text-gray-600'>Query Process:</div>
+        <div className='text-sm mt-2 mb-1 text-gray-600'>쿼리 과정:</div>
         <div className='font-mono flex items-center'>
             <div className='flex items-center'>Q: <div className='mx-2 my-1'>{makeTextVector(qCol)}</div></div>
         </div>
@@ -137,7 +131,7 @@ ${embedInline((() => {
             <div className='flex items-center mx-2'>w2 = <div className='m-1'>{makeTextVector(qCol)}</div>.<div className='m-1'>{makeTextVector(keyCol)}</div></div>
         </div>
         <div className='font-mono flex items-center my-2'>
-            [w0n, w1n, w2n] =&nbsp;<span className='italic'>normalization</span>([w0, w1, w2])
+            [w0n, w1n, w2n] =&nbsp;<span className='italic'>정규화</span>([w0, w1, w2])
         </div>
         <div className='font-mono flex items-center'>
             result =
@@ -149,8 +143,7 @@ ${embedInline((() => {
     </div>;
 })())}
 
-For a more concrete example, let's look at the 6th column (${c_dimRef('t = 5', DimStyle.T)}), from which
-we will query from:`;
+좀 더 구체적인 예로, 쿼리를 수행할 6번째 열(${c_dimRef('t = 5', DimStyle.T)})을 살펴보겠습니다:`;
     breakAfter();
 
     let t_focusQKVCols = afterTime(null, 1.0);
@@ -160,30 +153,27 @@ we will query from:`;
 // columns each have a K (key) vector, which represents the information that that column has, and our
 // Q (query) vector is what information is relevant to us.
     commentary(wt)`
-The {K, V} entries of our lookup are the 6 columns in the past, and the Q value is the current time.
+조회에 쓰이는 {K, V} 항목은 과거의 6개 열이고, Q 값은 현재 시점의 값입니다.
 
-We first calculate the dot product between the ${c_blockRef('Q vector', head2.qBlock)} of the current column (${c_dimRef('t = 5', DimStyle.T)}) and the ${c_blockRef('K vectors', head2.kBlock)}
-of each of the those previous columns. These are then stored in the corresponding row (${c_dimRef('t = 5', DimStyle.T)})
-of the ${c_blockRef('attention matrix', head2.attnMtx)}.`;
+먼저 현재 열(${c_dimRef('t = 5', DimStyle.T)})의 ${c_blockRef('Q 벡터', head2.qBlock)}와 이전 각 열의 ${c_blockRef('K 벡터', head2.kBlock)} 사이의 내적을 계산합니다.
+그 결과는 ${c_blockRef('어텐션 행렬', head2.attnMtx)}의 대응 행(${c_dimRef('t = 5', DimStyle.T)})에 저장됩니다.`;
     breakAfter();
 
     let t_processAttnRow = afterTime(null, 3.0);
 
     breakAfter();
     commentary(wt)`
-These dot products are a way of measuring the similarity between the two vectors. If they're very
-similar, the dot product will be large. If they're very different, the dot product will be small or
-negative.
+이 내적은 두 벡터가 얼마나 비슷한지 측정하는 방법입니다. 두 벡터가 매우 비슷하면 내적은 커지고,
+매우 다르면 작거나 음수가 됩니다.
 
-The idea of only using the query against past keys makes this _causal_ self-attention. That is,
-tokens can't "see into the future".
+쿼리를 과거의 키에만 적용한다는 점 때문에 이것을 _인과적(causal)_ 셀프 어텐션이라고 부릅니다.
+즉, 토큰은 “미래를 볼” 수 없습니다.
 
-Another element is that after we take the dot product, we divide by sqrt(${c_dimRef('A', DimStyle.A)}), where
-${c_dimRef('A', DimStyle.A)} is the length of the Q/K/V vectors. This scaling is done to prevent large values from
-dominating the normalization (softmax) in the next step.
+또 하나의 요소는 내적을 구한 뒤 sqrt(${c_dimRef('A', DimStyle.A)})로 나눈다는 점입니다. 여기서
+${c_dimRef('A', DimStyle.A)}는 Q/K/V 벡터의 길이입니다. 이 스케일링은 큰 값이 다음 단계의 정규화(소프트맥스)를
+지배하지 않도록 하기 위한 것입니다.
 
-We'll mostly skip over the softmax operation (described later); suffice it to say, each row is normalized to sum
-to 1.`;
+소프트맥스 연산은 뒤에서 설명하므로 여기서는 대부분 넘어가겠습니다. 지금은 각 행의 합이 1이 되도록 정규화한다고 보면 됩니다.`;
     breakAfter();
 
     let t_processAttnSmAggRow = afterTime(null, 1.0);
@@ -191,9 +181,9 @@ to 1.`;
 
     breakAfter();
     commentary(wt)`
-Finally, we can produce the output vector for our column (${c_dimRef('t = 5', DimStyle.T)}). We look at the (${c_dimRef('t = 5', DimStyle.T)}) row of the
-${c_blockRef('normalized self-attention matrix', head2.attnMtxSm)} and for each element, multiply the corresponding ${c_blockRef('V vector', head2.vBlock)} of the
-other columns element-wise.`;
+마지막으로 현재 열(${c_dimRef('t = 5', DimStyle.T)})의 출력 벡터를 만들 수 있습니다.
+${c_blockRef('정규화된 셀프 어텐션 행렬', head2.attnMtxSm)}의 (${c_dimRef('t = 5', DimStyle.T)}) 행을 보고, 각 원소마다 다른 열의 대응하는
+${c_blockRef('V 벡터', head2.vBlock)}를 원소별로 곱합니다.`;
     breakAfter();
 
     let t_zoomVOutput = afterTime(null, 0.4, 0.5);
@@ -207,10 +197,9 @@ other columns element-wise.`;
 
     breakAfter();
     commentary(wt)`
-Then we can add these up to produce the output vector. Thus, the output vector will be dominated by
-V vectors from columns that have high scores.
+그다음 이 값들을 더해 출력 벡터를 만듭니다. 따라서 출력 벡터는 높은 점수를 받은 열의 V 벡터에 크게 좌우됩니다.
 
-Now we know the process, let's run it for all the columns.`;
+이제 과정을 알았으니 모든 열에 대해 실행해 보겠습니다.`;
 
     breakAfter();
 
@@ -220,10 +209,8 @@ Now we know the process, let's run it for all the columns.`;
 
     breakAfter();
     commentary(wt)`
-And that's the process for a head of the self-attention layer. So the main goal of self-attention is
-that each column wants to find relevant information from other columns and extract their values, and
-does so by comparing its _query_ vector to the _keys_ of those other columns. With the added restriction
-that it can only look in the past.
+이것이 셀프 어텐션 레이어의 한 헤드에서 일어나는 과정입니다. 셀프 어텐션의 핵심 목표는 각 열이 다른 열에서 관련 정보를 찾아
+그 값을 끌어오는 것입니다. 이를 위해 자신의 _쿼리_ 벡터를 다른 열의 _키_와 비교합니다. 단, 과거만 볼 수 있다는 제약이 붙습니다.
 `;
 
 // Running this process for all the columns produces our self-attention matrix, which is a square

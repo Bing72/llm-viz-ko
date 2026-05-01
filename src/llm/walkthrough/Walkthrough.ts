@@ -68,6 +68,7 @@ export type IWalkthrough = ReturnType<typeof initWalkthrough>;
 export function initWalkthrough() {
     return {
         phase: SavedState.state?.phase ?? Phase.Intro_Intro,
+        language: 'ko' as 'en' | 'ko',
         time: SavedState.state?.phaseTime ?? 0,
         viewDt: 0,
         dt: 0,
@@ -85,23 +86,23 @@ export function initWalkthrough() {
         phaseTransitiveData: null as any,
         phaseList: [{
             groupId: PhaseGroup.Intro,
-            title: 'Introduction',
+            title: '소개',
             phases: [
-                { id: Phase.Intro_Intro, title: 'Overview' },
-                { id: Phase.Intro_Prelim, title: 'Preliminary' },
+                { id: Phase.Intro_Intro, title: '개요' },
+                { id: Phase.Intro_Prelim, title: '사전 지식' },
             ],
         }, {
             groupId: PhaseGroup.Detailed_Input,
-            title: 'Detailed',
+            title: '상세 과정',
             phases: [
-                { id: Phase.Input_Detail_Embedding, title: 'Embedding' },
-                { id: Phase.Input_Detail_LayerNorm, title: 'Layer Norm' },
-                { id: Phase.Input_Detail_SelfAttention, title: 'Self Attention' },
-                { id: Phase.Input_Detail_Projection, title: 'Projection' },
+                { id: Phase.Input_Detail_Embedding, title: '임베딩' },
+                { id: Phase.Input_Detail_LayerNorm, title: '레이어 정규화' },
+                { id: Phase.Input_Detail_SelfAttention, title: '셀프 어텐션' },
+                { id: Phase.Input_Detail_Projection, title: '프로젝션' },
                 { id: Phase.Input_Detail_Mlp, title: 'MLP' },
-                { id: Phase.Input_Detail_Transformer, title: 'Transformer' },
-                { id: Phase.Input_Detail_Softmax, title: 'Softmax' },
-                { id: Phase.Input_Detail_Output, title: 'Output' },
+                { id: Phase.Input_Detail_Transformer, title: '트랜스포머' },
+                { id: Phase.Input_Detail_Softmax, title: '소프트맥스' },
+                { id: Phase.Input_Detail_Output, title: '출력' },
             ],
         }] as IPhaseGroup[],
     };
@@ -201,7 +202,7 @@ export function walkthroughDetailed(args: IWalkthroughArgs) {
 
     case Phase.Input_First: {
         let t0 = c_str('', 0);
-        let c = commentary`These vectors now pass through the stages of the model, going through a series of transformers.${t0}`;
+        let c = commentary`이 벡터들은 이제 여러 트랜스포머를 차례로 지나며 모델의 각 단계를 통과합니다.${t0}`;
         let t1 = atEvent(t0);
         let t1a = afterTime(t1, 0.0, 2.0);
         let t2 = afterTime(t1a, 5, 0.2);
@@ -269,7 +270,7 @@ export function walkthroughDetailed(args: IWalkthroughArgs) {
     } break;
     case Phase.Input_Detail_TokEmbed: {
         let tStr = c_str('t', 1);
-        let c = commentary`Let's start at the top. To compute the vectors at each time ${tStr} we do a couple of steps:`;
+        let c = commentary`맨 위에서 시작해 보겠습니다. 각 시점 ${tStr}의 벡터를 계산하려면 몇 가지 단계를 거칩니다:`;
 
         moveCameraTo(state, atTime(0), new Vec3(0, 0, 0), new Vec3());
 
@@ -298,9 +299,9 @@ export function walkthroughDetailed(args: IWalkthroughArgs) {
             splitGrid(layout, layout.idxObj   , Dim.X, idx + 0.5, split);
         }
 
-        let embedMtx = c_str('token embedding matrix');
+        let embedMtx = c_str('토큰 임베딩 행렬');
         let tokCol = c_str('j');
-        commentaryPara(c)`\n\n1. From the ${embedMtx}, select the ${tokCol}'th column.`;
+        commentaryPara(c)`\n\n1. ${embedMtx}에서 ${tokCol}번째 열을 선택합니다.`;
 
         let embedOffColor = new Vec4(0.5,0.5,0.5).mul(0.6);
 

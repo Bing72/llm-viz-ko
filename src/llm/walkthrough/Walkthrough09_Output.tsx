@@ -13,40 +13,33 @@ export function walkthrough09_Output(args: IWalkthroughArgs) {
 
     let c0 = commentary(wt, null, 0)`
 
-Finally, we come to the end of the model. The output of the final transformer block is passed through
-a layer normalization, and then we use a linear transformation (matrix multiplication), this time without a bias.
+마침내 모델의 끝에 도달했습니다. 마지막 트랜스포머 블록의 출력은 레이어 정규화를 통과한 뒤,
+이번에는 편향 없이 선형 변환(행렬 곱)을 거칩니다.
 
-This final transformation takes each of our column vectors from length C to length nvocab. Hence,
-it's effectively producing a score for each word in the vocabulary for each of our columns. These
-scores have a special name: logits.
+이 마지막 변환은 각 열 벡터의 길이를 C에서 어휘 수(n_vocab)로 바꿉니다. 즉 각 열마다 어휘 집합의 각 단어에 대한 점수를 만드는 셈입니다.
+이 점수에는 특별한 이름이 있습니다. 로짓(logits)입니다.
 
-The name "logits" comes from "log-odds," i.e., the logarithm of the odds of each token. "Log" is
-used because the softmax we apply next does an exponentiation to convert to "odds" or probabilities.
+“로짓(logits)”이라는 이름은 각 토큰의 오즈(odds)에 로그를 취한 “로그 오즈(log-odds)”에서 왔습니다. 다음에 적용할 소프트맥스가 지수화를 통해
+이를 오즈 또는 확률로 바꾸기 때문에 “로그(log)”라는 표현이 붙습니다.
 
-To convert these scores into nice probabilities, we pass them through a softmax operation. Now, for
-each column, we have a probability the model assigns to each word in the vocabulary.
+이 점수들을 보기 좋은 확률로 바꾸기 위해 소프트맥스 연산을 통과시킵니다. 이제 각 열마다 모델이 어휘의 각 단어에 부여한 확률이 생깁니다.
 
-In this particular model, it has effectively learned all the answers to the question of how to sort
-three letters, so the probabilities are heavily weighted toward the correct answer.
+이 작은 모델은 세 글자를 어떻게 정렬할지에 대한 답을 사실상 모두 학습했기 때문에, 확률은 정답 쪽에 크게 몰립니다.
 
-When we're stepping the model through time, we use the last column's probabilities to determine the
-next token to add to the sequence. For example, if we've supplied six tokens into the model, we'll
-use the output probabilities of the 6th column.
+모델을 시간에 따라 진행할 때는 마지막 열의 확률을 사용해 시퀀스에 추가할 다음 토큰을 결정합니다.
+예를 들어 모델에 여섯 개의 토큰을 넣었다면 6번째 열의 출력 확률을 사용합니다.
 
-This column's output is a series of probabilities, and we actually have to pick one of them to use
-as the next in the sequence. We do this by "sampling from the distribution." That is, we randomly
-choose a token, weighted by its probability. For example, a token with a probability of 0.9 will be
-chosen 90% of the time.
+이 열의 출력은 확률들의 목록이며, 실제로는 그중 하나를 골라 시퀀스의 다음 토큰으로 사용해야 합니다.
+이를 “분포에서 샘플링한다”고 말합니다. 즉 확률에 따라 가중치를 두고 무작위로 토큰을 선택합니다.
+예를 들어 확률이 0.9인 토큰은 90%의 경우에 선택됩니다.
 
-There are other options here, however, such as always choosing the token with the highest probability.
+물론 항상 가장 높은 확률의 토큰을 고르는 등 다른 선택지도 있습니다.
 
-We can also control the "smoothness" of the distribution by using a temperature parameter. A higher
-temperature will make the distribution more uniform, and a lower temperature will make it more
-concentrated on the highest probability tokens.
+또한 온도(temperature) 매개변수를 사용해 분포의 “부드러움”을 조절할 수 있습니다. 온도가 높으면 분포가 더 균일해지고,
+낮으면 가장 확률이 높은 토큰 쪽으로 더 집중됩니다.
 
-We do this by dividing the logits (the output of the linear transformation) by the temperature before
-applying the softmax. Since the exponentiation in the softmax has a large effect on larger numbers,
-making them all closer together will reduce this effect.
+이는 소프트맥스를 적용하기 전에 로짓(선형 변환의 출력)을 온도로 나누는 방식으로 수행합니다.
+소프트맥스의 지수화는 큰 숫자에 큰 영향을 주므로, 값들을 서로 더 가깝게 만들면 이 효과가 줄어듭니다.
 `;
 
 }

@@ -24,10 +24,10 @@ export function walkthrough03_LayerNorm(args: IWalkthroughArgs) {
 
     commentary(wt, null, 0)`
 
-The  ${c_blockRef('_input embedding_', state.layout.residual0)} matrix from the previous section is the input to our first Transformer block.
+이전 섹션에서 만든 ${c_blockRef('_입력 임베딩_', state.layout.residual0)} 행렬은 첫 번째 트랜스포머 블록의 입력이 됩니다.
 
-The first step in the Transformer block is to apply _layer normalization_ to this matrix. This is an
-operation that normalizes the values in each column of the matrix separately.`;
+트랜스포머 블록의 첫 단계는 이 행렬에 _레이어 정규화_를 적용하는 것입니다. 이는 행렬의 각 열 값을
+각각 따로 정규화하는 연산입니다.`;
     breakAfter();
 
     let t_moveCamera = afterTime(null, 1.0);
@@ -37,10 +37,9 @@ operation that normalizes the values in each column of the matrix separately.`;
 
     breakAfter();
     commentary(wt)`
-Normalization is an important step in the training of deep neural networks, and it helps improve the
-stability of the model during training.
+정규화는 깊은 신경망 학습에서 중요한 단계이며, 학습 중 모델의 안정성을 높이는 데 도움이 됩니다.
 
-We can regard each column separately, so let's focus on the 4th column (${c_dimRef('t = 3', DimStyle.T)}) for now.`;
+각 열을 따로 볼 수 있으므로, 지금은 4번째 열(${c_dimRef('t = 3', DimStyle.T)})에 집중해 보겠습니다.`;
 
     breakAfter();
     let t_focusColumn = afterTime(null, 0.5);
@@ -49,8 +48,8 @@ We can regard each column separately, so let's focus on the 4th column (${c_dimR
     // sigma ascii: \u03c3
     breakAfter();
     commentary(wt)`
-The goal is to make the average value in the column equal to 0 and the standard deviation equal to 1. To do this,
-we find both of these quantities (${c_blockRef('mean (\u03bc)', ln.lnAgg1)} & ${c_blockRef('std dev (\u03c3)', ln.lnAgg2)}) for the column and then subtract the average and divide by the standard deviation.`;
+목표는 열 안의 평균값을 0으로, 표준편차를 1로 만드는 것입니다. 이를 위해 해당 열의
+${c_blockRef('평균 (\u03bc)', ln.lnAgg1)}과 ${c_blockRef('표준편차 (\u03c3)', ln.lnAgg2)}를 구한 뒤, 평균을 빼고 표준편차로 나눕니다.`;
 
     breakAfter();
 
@@ -61,13 +60,13 @@ we find both of these quantities (${c_blockRef('mean (\u03bc)', ln.lnAgg1)} & ${
 
     breakAfter();
     commentary(wt)`
-The notation we use here is E[x] for the average and Var[x] for the variance (of the column of length ${c_dimRef('C', DimStyle.C)}). The
-variance is simply the standard deviation squared. The epsilon term (ε = ${<>1&times;10<sup>-5</sup></>}) is there to prevent division by zero.
+여기서는 길이가 ${c_dimRef('C', DimStyle.C)}인 열의 평균을 E[x], 분산을 Var[x]로 표기합니다.
+분산은 표준편차를 제곱한 값입니다. 엡실론 항(ε = ${<>1&times;10<sup>-5</sup></>})은 0으로 나누는 일을 막기 위해 들어갑니다.
 
-We compute and store these values in our aggregation layer since we're applying them to all values in the column.
+이 값들은 열 안의 모든 값에 적용되므로, 집계 레이어에서 계산해 저장합니다.
 
-Finally, once we have the normalized values, we multiply each element in the column by a learned
-${c_blockRef('weight (\u03b3)', ln.lnSigma)} and then add a ${c_blockRef('bias (β)', ln.lnMu)} value, resulting in our ${c_blockRef('normalized values', ln.lnResid)}.`;
+마지막으로 정규화된 값을 얻으면, 열의 각 원소에 학습된
+${c_blockRef('가중치 (\u03b3)', ln.lnSigma)}를 곱하고 ${c_blockRef('편향 (β)', ln.lnMu)} 값을 더해 ${c_blockRef('정규화된 값', ln.lnResid)}을 만듭니다.`;
 
     breakAfter();
 
@@ -77,8 +76,8 @@ ${c_blockRef('weight (\u03b3)', ln.lnSigma)} and then add a ${c_blockRef('bias (
 
     breakAfter();
     commentary(wt)`
-We run this normalization operation on each column of the ${c_blockRef('input embedding matrix', layout.residual0)}, and the result is
-the ${c_blockRef('normalized input embedding', ln.lnResid)}, which is ready to be passed into the Self-Attention layer.
+${c_blockRef('입력 임베딩 행렬', layout.residual0)}의 각 열에 이 정규화 연산을 실행하면
+${c_blockRef('정규화된 입력 임베딩', ln.lnResid)}이 만들어지고, 이는 셀프 어텐션 레이어로 전달될 준비가 됩니다.
 `;
 
     breakAfter();

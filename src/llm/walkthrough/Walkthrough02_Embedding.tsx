@@ -21,11 +21,11 @@ export function walkthrough02_Embedding(args: IWalkthroughArgs) {
     wt.dimHighlightBlocks = [layout.idxObj, layout.tokEmbedObj, layout.posEmbedObj, layout.residual0];
 
     commentary(wt)`
-We saw previously how the tokens are mapped to a sequence of integers using a simple lookup table.
-These integers, the ${c_blockRef('_token indices_', state.layout.idxObj, DimStyle.TokenIdx)}, are the first and only time we see integers in the model.
-From here on out, we're using floats (decimal numbers).
+앞에서 간단한 조회 테이블을 이용해 토큰이 정수 시퀀스로 매핑되는 과정을 봤습니다.
+이 정수, 즉 ${c_blockRef('_토큰 인덱스_', state.layout.idxObj, DimStyle.TokenIdx)}는 모델 안에서 정수가 등장하는 처음이자 마지막 지점입니다.
+이후부터는 부동소수점 수(소수)를 사용합니다.
 
-Let's take a look at how the 4th token (index 3) is used to generate the 4th column vector of our ${c_blockRef('_input embedding_', state.layout.residual0)}.`;
+4번째 토큰(인덱스 3)이 ${c_blockRef('_입력 임베딩_', state.layout.residual0)}의 4번째 열 벡터를 만드는 데 어떻게 쓰이는지 살펴보겠습니다.`;
     breakAfter();
 
     let t_moveCamera = afterTime(null, 1.0);
@@ -34,10 +34,10 @@ Let's take a look at how the 4th token (index 3) is used to generate the 4th col
     breakAfter();
 
     commentary(wt)`
-We use the token index (in this case ${c_str('B', DimStyle.Token)} = ${c_dimRef('1', DimStyle.TokenIdx)}) to select the 2nd column of the ${c_blockRef('_token embedding matrix_', state.layout.tokEmbedObj)} on the left.
-Note we're using 0-based indexing here, so the first column is at index 0.
+토큰 인덱스(여기서는 ${c_str('B', DimStyle.Token)} = ${c_dimRef('1', DimStyle.TokenIdx)})를 사용해 왼쪽 ${c_blockRef('_토큰 임베딩 행렬_', state.layout.tokEmbedObj)}의 2번째 열을 선택합니다.
+여기서는 0부터 세는 인덱스를 쓰므로 첫 번째 열의 인덱스는 0입니다.
 
-This produces a column vector of size ${c_dimRef('_C_ = 48', DimStyle.C)}, which we describe as the token embedding.
+그 결과 크기가 ${c_dimRef('_C_ = 48', DimStyle.C)}인 열 벡터가 만들어지며, 이를 토큰 임베딩이라고 부릅니다.
     `;
     breakAfter();
 
@@ -47,9 +47,9 @@ This produces a column vector of size ${c_dimRef('_C_ = 48', DimStyle.C)}, which
     breakAfter();
 
     commentary(wt)`
-And since we're looking at our token ${c_str('B', DimStyle.Token)} in the 4th _position_ (t = ${c_dimRef('3', DimStyle.T)}), we'll take the 4th column of the ${c_blockRef('_position embedding matrix_', state.layout.posEmbedObj)}.
+그리고 토큰 ${c_str('B', DimStyle.Token)}가 4번째 _위치_(t = ${c_dimRef('3', DimStyle.T)})에 있으므로, ${c_blockRef('_위치 임베딩 행렬_', state.layout.posEmbedObj)}의 4번째 열을 가져옵니다.
 
-This also produces a column vector of size ${c_dimRef('_C_ = 48', DimStyle.C)}, which we describe as the position embedding.
+이 역시 크기가 ${c_dimRef('_C_ = 48', DimStyle.C)}인 열 벡터를 만들며, 이를 위치 임베딩이라고 부릅니다.
     `;
     breakAfter();
 
@@ -58,9 +58,9 @@ This also produces a column vector of size ${c_dimRef('_C_ = 48', DimStyle.C)}, 
     breakAfter();
 
     commentary(wt)`
-Note that both of these position and token embeddings are learned during training (indicated by their blue color).
+위치 임베딩과 토큰 임베딩은 모두 학습 과정에서 배워진 값입니다(파란색으로 표시됩니다).
 
-Now that we have these two column vectors, we simply add them together to produce another column vector of size ${c_dimRef('_C_ = 48', DimStyle.C)}.
+이제 두 열 벡터가 준비되었으니, 둘을 더해 크기가 ${c_dimRef('_C_ = 48', DimStyle.C)}인 또 하나의 열 벡터를 만듭니다.
 `;
 
     breakAfter();
@@ -76,7 +76,7 @@ Now that we have these two column vectors, we simply add them together to produc
     breakAfter();
 
     commentary(wt)`
-We now run this same process for all of the tokens in the input sequence, creating a set of vectors which incorporate both the token values and their positions.
+이제 입력 시퀀스의 모든 토큰에 같은 과정을 적용해, 토큰 값과 위치 정보가 함께 담긴 벡터 묶음을 만듭니다.
 
 `;
 
@@ -87,15 +87,15 @@ We now run this same process for all of the tokens in the input sequence, creati
     breakAfter();
 
     commentary(wt)`
-Feel free to hover over individual cells on the ${c_blockRef('_input embedding_', state.layout.residual0)} matrix to see the computations and their sources.
+${c_blockRef('_입력 임베딩_', state.layout.residual0)} 행렬의 각 셀에 마우스를 올리면 해당 값의 계산 과정과 출처를 볼 수 있습니다.
 
-We see that running this process for all the tokens in the input sequence produces a matrix of size ${c_dimRef('_T_', DimStyle.T)} x ${c_dimRef('_C_', DimStyle.C)}.
-The ${c_dimRef('_T_', DimStyle.T)} stands for ${c_dimRef('_time_', DimStyle.T)}, i.e., you can think of tokens later in the sequence as later in time.
-The ${c_dimRef('_C_', DimStyle.C)} stands for ${c_dimRef('_channel_', DimStyle.C)}, but is also referred to as "feature" or "dimension" or "embedding size". This length, ${c_dimRef('_C_', DimStyle.C)},
-is one of the several "hyperparameters" of the model, and is chosen by the designer to in a tradeoff between model size and performance.
+입력 시퀀스의 모든 토큰에 이 과정을 실행하면 크기가 ${c_dimRef('_T_', DimStyle.T)} x ${c_dimRef('_C_', DimStyle.C)}인 행렬이 만들어집니다.
+${c_dimRef('_T_', DimStyle.T)}는 ${c_dimRef('_시간(time)_', DimStyle.T)}을 뜻하며, 시퀀스 뒤쪽의 토큰을 더 나중 시점으로 생각할 수 있습니다.
+${c_dimRef('_C_', DimStyle.C)}는 ${c_dimRef('_채널(channel)_', DimStyle.C)}을 뜻하지만 특징(feature), 차원(dimension), 임베딩 크기(embedding size)라고도 부릅니다. 이 길이 ${c_dimRef('_C_', DimStyle.C)}는
+모델의 여러 “하이퍼파라미터” 중 하나이며, 모델 크기와 성능 사이의 균형을 고려해 설계자가 정합니다.
 
-This matrix, which we'll refer to as the ${c_blockRef('_input embedding_', state.layout.residual0)} is now ready to be passed down through the model.
-This collection of ${c_dimRef('T', DimStyle.T)} columns each of length ${c_dimRef('C', DimStyle.C)} will become a familiar sight throughout this guide.
+이 행렬, 즉 ${c_blockRef('_입력 임베딩_', state.layout.residual0)}은 이제 모델 아래쪽으로 전달될 준비가 되었습니다.
+길이가 각각 ${c_dimRef('C', DimStyle.C)}인 ${c_dimRef('T', DimStyle.T)}개의 열 묶음은 이 가이드 전체에서 계속 보게 될 형태입니다.
 `;
 
     cleanup(t9_cleanupInstant, [t3_moveTokenEmbed, t5_movePosEmbed, t6_plusSymAnim, t7_addAnim, t8_placeAnim]);
