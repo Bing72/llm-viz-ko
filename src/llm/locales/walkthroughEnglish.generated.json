@@ -376,8 +376,8 @@
         1
       ],
       "valueText": [
-        "mean (\\u03bc)",
-        "std dev (\\u03c3)"
+        "mean (μ)",
+        "std dev (σ)"
       ]
     },
     {
@@ -407,7 +407,7 @@
       "valueText": [
         null,
         null,
-        "weight (\\u03b3)",
+        "weight (γ)",
         "bias (β)",
         "normalized values"
       ]
@@ -885,8 +885,8 @@
       "weights"
     ],
     [
-      "가중치 (\\u03b3)",
-      "weight (\\u03b3)"
+      "가중치 (γ)",
+      "weight (γ)"
     ],
     [
       "값(value) 벡터",
@@ -1013,12 +1013,12 @@
       "bias (β)"
     ],
     [
-      "평균 (\\u03bc)",
-      "mean (\\u03bc)"
+      "평균 (μ)",
+      "mean (μ)"
     ],
     [
-      "표준편차 (\\u03c3)",
-      "std dev (\\u03c3)"
+      "표준편차 (σ)",
+      "std dev (σ)"
     ],
     [
       "프로젝션",

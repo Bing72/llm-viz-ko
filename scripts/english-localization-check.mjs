@@ -33,6 +33,8 @@ function hasHangul(value) {
 
 function decodeStringLiteral(raw) {
     return raw
+        .replace(/\\u\{([0-9a-fA-F]+)\}/g, (_, codePoint) => String.fromCodePoint(parseInt(codePoint, 16)))
+        .replace(/\\u([0-9a-fA-F]{4})/g, (_, codePoint) => String.fromCharCode(parseInt(codePoint, 16)))
         .replace(/\\r/g, '\r')
         .replace(/\\n/g, '\n')
         .replace(/\\t/g, '\t')
@@ -402,6 +404,22 @@ function templateKey(source) {
     return JSON.stringify(source.map(normalize));
 }
 
+function findEscapedUnicodeValues(value, pathParts = []) {
+    if (typeof value === 'string') {
+        return /\\u[0-9a-fA-F]{4}/.test(value) ? [`${pathParts.join('.')}: ${value}`] : [];
+    }
+
+    if (Array.isArray(value)) {
+        return value.flatMap((item, index) => findEscapedUnicodeValues(item, [...pathParts, index]));
+    }
+
+    if (value && typeof value === 'object') {
+        return Object.entries(value).flatMap(([key, item]) => findEscapedUnicodeValues(item, [...pathParts, key]));
+    }
+
+    return [];
+}
+
 function main() {
     const expected = makeExpectedData();
 
@@ -423,6 +441,7 @@ function main() {
     const mismatchedTexts = [];
     const ambiguousTextsInFallback = [];
     const unhandledAmbiguousTextTargets = [];
+    const escapedUnicodeValues = findEscapedUnicodeValues(generated);
 
     for (const expectedTemplate of expected.templates) {
         const key = templateKey(expectedTemplate.key);
@@ -503,6 +522,7 @@ function main() {
         mismatchedTexts.length > 0 ||
         ambiguousTextsInFallback.length > 0 ||
         unhandledAmbiguousTextTargets.length > 0 ||
+        escapedUnicodeValues.length > 0 ||
         !usesTemplateApi ||
         !usesReactNodeApi ||
         !usesValueText
@@ -547,6 +567,12 @@ function main() {
             console.error(`Ambiguous text targets are not covered by valueText or phase title localization: ${unhandledAmbiguousTextTargets.length}`);
             for (const source of unhandledAmbiguousTextTargets.slice(0, 20)) {
                 console.error(`  - ${source}`);
+            }
+        }
+        if (escapedUnicodeValues.length > 0) {
+            console.error(`Escaped unicode sequences must be decoded before writing generated localization data: ${escapedUnicodeValues.length}`);
+            for (const value of escapedUnicodeValues.slice(0, 20)) {
+                console.error(`  - ${value}`);
             }
         }
         process.exit(1);
