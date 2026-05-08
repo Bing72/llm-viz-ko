@@ -52,11 +52,12 @@ interface IEnglishLocalizationData {
         key: string[];
         en: string[];
         valueOrder: number[];
+        valueText: (string | null)[];
     }[];
     text: [string, string][];
 }
 
-const englishData = generatedEnglishData as IEnglishLocalizationData;
+const englishData = generatedEnglishData as unknown as IEnglishLocalizationData;
 const englishTemplateMap = new Map(englishData.templates.map(entry => [templateKey(entry.key), entry]));
 const englishTextMap = new Map(englishData.text);
 
@@ -85,15 +86,40 @@ export function localizeTemplate(strings: readonly string[], language: LlmLangua
 
     let mapped = englishTemplateMap.get(templateKey(strings));
     if (mapped) {
-        return { strings: mapped.en, valueOrder: mapped.valueOrder };
+        return { strings: mapped.en, valueOrder: mapped.valueOrder, valueText: mapped.valueText };
     }
 
     return { strings: strings.map(text => localizeText(text, language)) };
 }
 
-export function localizeText(text: string, language: LlmLanguage) {
+export function localizePhaseTitle(text: string, language: LlmLanguage) {
     if (language === 'ko') {
         return text;
+    }
+
+    switch (normalizeText(text)) {
+        case '소개': return 'Introduction';
+        case '개요': return 'Overview';
+        case '사전 지식': return 'Preliminary';
+        case '상세 과정': return 'Detailed';
+        case '임베딩': return 'Embedding';
+        case '레이어 정규화': return 'Layer Norm';
+        case '셀프 어텐션': return 'Self Attention';
+        case '프로젝션': return 'Projection';
+        case '트랜스포머': return 'Transformer';
+        case '소프트맥스': return 'Softmax';
+        case '출력': return 'Output';
+        default: return localizeText(text, language);
+    }
+}
+
+export function localizeText(text: string, language: LlmLanguage, explicitTarget?: string | null) {
+    if (language === 'ko') {
+        return text;
+    }
+
+    if (explicitTarget) {
+        return replacePreservingOuterWhitespace(text, explicitTarget);
     }
 
     let normalized = normalizeText(text);

@@ -12,7 +12,7 @@ import clsx from 'clsx';
 import { TocDiagram } from './components/TocDiagram';
 import { BlockText, DimensionText } from './components/CommentaryHelpers';
 import { useRequestAnimationFrame } from '../utils/hooks';
-import { localizeReactNode, localizeTemplate, localizeText, localizedLabel, useLanguage } from './Language';
+import { localizePhaseTitle, localizeReactNode, localizeTemplate, localizeText, localizedLabel, useLanguage } from './Language';
 
 export function jumpToPhase(wt: IWalkthrough, phaseId: Phase) {
     wt.time = 0;
@@ -263,7 +263,7 @@ export const Commentary: React.FC = () => {
             <button className={clsx(s.btn, s.prevNextBtn)} onClick={() => handlePhaseDeltaClick(-1)}>
                 <FontAwesomeIcon icon={faChevronLeft} />
             </button>
-            <div className={s.chapterTitle}>{localizedLabel(language, 'Chapter', '챕터')}: {localizeText(phase.title, language)}</div>
+            <div className={s.chapterTitle}>{localizedLabel(language, 'Chapter', '챕터')}: {localizePhaseTitle(phase.title, language)}</div>
             <button className={clsx(s.btn, s.prevNextBtn)} onClick={() => handlePhaseDeltaClick(1)}>
                 <FontAwesomeIcon icon={faChevronRight} />
             </button>
@@ -339,6 +339,7 @@ export function walkthroughToParagraphs(wt: IWalkthrough, nodes: INode[], langua
             let valueIdx = localizedTemplate.valueOrder?.[i] ?? i;
             if (valueIdx < c.values.length) {
                 let val = c.values[valueIdx];
+                let explicitValueText = localizedTemplate.valueText?.[i];
                 if (isValidElement(val)) {
                     paraItems.push(<React.Fragment key={paraKeyId++}>{localizeReactNode(val, language)}</React.Fragment>)
                 }
@@ -349,13 +350,13 @@ export function walkthroughToParagraphs(wt: IWalkthrough, nodes: INode[], langua
                     pushParagraph();
                     let fnVal = typeof val.insert === 'function' ? val.insert() : val.insert;
                     let el = typeof fnVal === 'string'
-                        ? localizeText(fnVal, language)
+                        ? localizeText(fnVal, language, explicitValueText)
                         : React.createElement(fnVal as React.FC, { key: 'i' + i });
                     res.push(el);
                 }
                 if (val.color) {
                     let color = val.color.toHexColor();
-                    let content = markupSimple(localizeText(val.str, language));
+                    let content = markupSimple(localizeText(val.str, language, explicitValueText));
                     if (val.dim) {
                         paraItems.push(<DimensionText key={paraKeyId++} style={{ color }} dim={val.dim}>{content}</DimensionText>);
                     } else if (val.blk) {

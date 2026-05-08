@@ -11,6 +11,9 @@
       ],
       "valueOrder": [
         0
+      ],
+      "valueText": [
+        null
       ]
     },
     {
@@ -24,6 +27,9 @@
       ],
       "valueOrder": [
         0
+      ],
+      "valueText": [
+        null
       ]
     },
     {
@@ -40,6 +46,10 @@
       "valueOrder": [
         0,
         1
+      ],
+      "valueText": [
+        "token embedding matrix",
+        null
       ]
     },
     {
@@ -53,6 +63,9 @@
       ],
       "valueOrder": [
         0
+      ],
+      "valueText": [
+        null
       ]
     },
     {
@@ -75,6 +88,12 @@
         1,
         2,
         3
+      ],
+      "valueText": [
+        "_token_",
+        null,
+        "_token index_",
+        null
       ]
     },
     {
@@ -88,6 +107,9 @@
       ],
       "valueOrder": [
         0
+      ],
+      "valueText": [
+        null
       ]
     },
     {
@@ -97,7 +119,8 @@
       "en": [
         "The embedding is then passed through the model, going through a series of layers, called transformers, before reaching the bottom."
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -106,7 +129,8 @@
       "en": [
         "So what's the output? A prediction of the next token in the sequence. So at the 6th entry, we get probabilities that the next token is\n        going to be 'A', 'B', or 'C'."
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -115,7 +139,8 @@
       "en": [
         "In this case, the model is pretty sure it's going to be 'A'. Now, we can feed this prediction back into the top of the model, and repeat\n    the entire process."
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -137,6 +162,12 @@
         1,
         0,
         3
+      ],
+      "valueText": [
+        null,
+        null,
+        null,
+        null
       ]
     },
     {
@@ -153,6 +184,10 @@
       "valueOrder": [
         0,
         1
+      ],
+      "valueText": [
+        "_token indices_",
+        "_input embedding_"
       ]
     },
     {
@@ -175,6 +210,12 @@
         1,
         2,
         3
+      ],
+      "valueText": [
+        null,
+        null,
+        "_token embedding matrix_",
+        null
       ]
     },
     {
@@ -197,6 +238,12 @@
         1,
         2,
         3
+      ],
+      "valueText": [
+        null,
+        null,
+        "_position embedding matrix_",
+        null
       ]
     },
     {
@@ -210,6 +257,9 @@
       ],
       "valueOrder": [
         0
+      ],
+      "valueText": [
+        null
       ]
     },
     {
@@ -219,7 +269,8 @@
       "en": [
         "\nWe now run this same process for all of the tokens in the input sequence, creating a set of vectors which incorporate both the token values and their positions.\n\n"
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -262,6 +313,19 @@
         8,
         10,
         9
+      ],
+      "valueText": [
+        "_input embedding_",
+        null,
+        null,
+        null,
+        "_time_",
+        null,
+        "_channel_",
+        null,
+        "_input embedding_",
+        null,
+        null
       ]
     },
     {
@@ -275,6 +339,9 @@
       ],
       "valueOrder": [
         0
+      ],
+      "valueText": [
+        "_input embedding_"
       ]
     },
     {
@@ -288,6 +355,9 @@
       ],
       "valueOrder": [
         0
+      ],
+      "valueText": [
+        null
       ]
     },
     {
@@ -304,6 +374,10 @@
       "valueOrder": [
         0,
         1
+      ],
+      "valueText": [
+        "mean (\\u03bc)",
+        "std dev (\\u03c3)"
       ]
     },
     {
@@ -329,6 +403,13 @@
         2,
         3,
         4
+      ],
+      "valueText": [
+        null,
+        null,
+        "weight (\\u03b3)",
+        "bias (β)",
+        "normalized values"
       ]
     },
     {
@@ -345,6 +426,10 @@
       "valueOrder": [
         0,
         1
+      ],
+      "valueText": [
+        "input embedding matrix",
+        "normalized input embedding"
       ]
     },
     {
@@ -354,7 +439,8 @@
       "en": [
         "\nThe self-attention layer is perhaps the heart of the Transformer and of GPT. It's the phase where the\ncolumns in our input embedding matrix \"talk\" to each other. Up until now, and in all other phases,\nthe columns can be regarded independently.\n\nThe self-attention layer is made up of several heads, and we'll focus on one of them for now."
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -382,6 +468,14 @@
         3,
         4,
         5
+      ],
+      "valueText": [
+        null,
+        "normalized input embedding matrix",
+        null,
+        "Q vectors",
+        "Q-weight matrix",
+        "input matrix"
       ]
     },
     {
@@ -391,7 +485,8 @@
       "en": [
         "\nThe dot product operation, which we'll see a lot of, is quite simple: We pair each element from\nthe first vector with the corresponding element from the second vector, multiply the pairs together\nand then add the results up."
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -400,7 +495,8 @@
       "en": [
         "\n\nThis is a general and simple way of ensuring each output element can be influenced by all the\nelements in the input vector (where that influence is determined by the weights). Hence its frequent\nappearance in neural networks.\n\nWe repeat this operation for each output cell in the Q, K, V vectors:"
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -419,6 +515,11 @@
         0,
         1,
         2
+      ],
+      "valueText": [
+        null,
+        null,
+        null
       ]
     },
     {
@@ -444,6 +545,13 @@
         2,
         4,
         3
+      ],
+      "valueText": [
+        "Q vector",
+        null,
+        "K vectors",
+        null,
+        "attention matrix"
       ]
     },
     {
@@ -460,6 +568,10 @@
       "valueOrder": [
         0,
         1
+      ],
+      "valueText": [
+        null,
+        null
       ]
     },
     {
@@ -482,6 +594,12 @@
         2,
         1,
         3
+      ],
+      "valueText": [
+        null,
+        null,
+        "normalized self-attention matrix",
+        "V vector"
       ]
     },
     {
@@ -491,7 +609,8 @@
       "en": [
         "\nThen we can add these up to produce the output vector. Thus, the output vector will be dominated by\nV vectors from columns that have high scores.\n\nNow we know the process, let's run it for all the columns."
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -500,7 +619,8 @@
       "en": [
         "\nAnd that's the process for a head of the self-attention layer. So the main goal of self-attention is\nthat each column wants to find relevant information from other columns and extract their values, and\ndoes so by comparing its _query_ vector to the _keys_ of those other columns. With the added restriction\nthat it can only look in the past.\n"
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -509,7 +629,8 @@
       "en": [
         "\n\nThe softmax operation is used as part of self-attention, as seen in the previous section, and it\nwill also appear at the very end of the model.\n\nIts goal is to take a vector and normalize its values so that they sum to 1.0. However, it's not as\nsimple as dividing by the sum. Instead, each input value is first exponentiated.\n\n  a = exp(x_1)\n\nThis has the effect of making all values positive. Once we have a vector of our exponentiated\nvalues, we can then divide each value by the sum of all the values. This will ensure that the sum\nof the values is 1.0. Since all the exponentiated values are positive, we know that the resulting\nvalues will be between 0.0 and 1.0, which provides a probability distribution over the original values.\n\nThat's it for softmax: simply exponentiate the values and then divide by the sum.\n\nHowever, there's a slight complication. If any of the input values are quite large, then the\nexponentiated values will be very large. We'll end up dividing a large number by a very large number,\nand this can cause issues with floating-point arithmetic.\n\nOne useful property of the softmax operation is that if we add a constant to all the input values,\nthe result will be the same. So we can find the largest value in the input vector and subtract it\nfrom all the values. This ensures that the largest value is 0.0, and the softmax remains numerically\nstable.\n\nLet's take a look at the softmax operation in the context of the self-attention layer. Our input\nvector for each softmax operation is a row of the self-attention matrix (but only up to the diagonal).\n\nLike with layer normalization, we have an intermediate step where we store some aggregation values\nto keep the process efficient.\n\nFor each row, we store the max value in the row and the sum of the shifted & exponentiated values.\nThen, to produce the corresponding output row, we can perform a small set of operations: subtract the\nmax, exponentiate, and divide by the sum.\n\nWhat's with the name \"softmax\"? The \"hard\" version of this operation, called argmax, simply finds\nthe maximum value, sets it to 1.0, and assigns 0.0 to all other values. In contrast, the softmax\noperation serves as a \"softer\" version of that. Due to the exponentiation involved in softmax, the\nlargest value is emphasized and pushed towards 1.0, while still maintaining a probability distribution\nover all input values. This allows for a more nuanced representation that captures not only the most\nlikely option but also the relative likelihood of other options.\n"
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -531,6 +652,12 @@
         1,
         2,
         3
+      ],
+      "valueText": [
+        "output vectors",
+        null,
+        null,
+        null
       ]
     },
     {
@@ -550,6 +677,11 @@
         0,
         1,
         2
+      ],
+      "valueText": [
+        null,
+        null,
+        null
       ]
     },
     {
@@ -559,7 +691,8 @@
       "en": [
         "\n\nNow we have the output of the self-attention layer. Instead of passing this output directly to the\nnext phase, we add it element-wise to the input embedding. This process, denoted by the green\nvertical arrow, is called the _residual connection_ or _residual pathway_.\n"
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -568,7 +701,8 @@
       "en": [
         "\n\nLike layer normalization, the residual pathway is important for enabling effective learning in deep\nneural networks.\n\nNow with the result of self-attention in hand, we can pass it onto the next section of the transformer:\nthe feed-forward network.\n"
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -602,6 +736,16 @@
         6,
         5,
         7
+      ],
+      "valueText": [
+        "layer normalization",
+        null,
+        "linear transformation",
+        "bias",
+        null,
+        "linear transformation",
+        "bias",
+        null
       ]
     },
     {
@@ -615,6 +759,9 @@
       ],
       "valueOrder": [
         0
+      ],
+      "valueText": [
+        null
       ]
     },
     {
@@ -631,6 +778,10 @@
       "valueOrder": [
         0,
         1
+      ],
+      "valueText": [
+        null,
+        null
       ]
     },
     {
@@ -644,6 +795,9 @@
       ],
       "valueOrder": [
         0
+      ],
+      "valueText": [
+        null
       ]
     },
     {
@@ -653,7 +807,8 @@
       "en": [
         "\nLike in the self-attention + projection section, we add the result of the MLP to its input, element-wise.\n"
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -662,7 +817,8 @@
       "en": [
         "\nWe can now repeat this process for all of the columns in the input."
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -671,7 +827,8 @@
       "en": [
         "\nAnd that's the MLP completed. We now have the output of the transformer block, which is ready to be passed to the next block.\n"
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -680,7 +837,8 @@
       "en": [
         "\n\nAnd that's a complete transformer block!\n\nThese form the bulk of any GPT model and are repeated a number of times, with the output of one\nblock feeding into the next, continuing the residual pathway.\n\nAs is common in deep learning, it's hard to say exactly what each of these layers is doing, but we\nhave some general ideas: the earlier layers tend to focus on learning\nlower-level features and patterns, while the later layers learn to recognize and understand\nhigher-level abstractions and relationships. In the context of natural language processing, the\nlower layers might learn grammar, syntax, and simple word associations, while the higher layers\nmight capture more complex semantic relationships, discourse structures, and context-dependent meaning.\n\n"
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     },
     {
       "key": [
@@ -689,7 +847,8 @@
       "en": [
         "\n\nFinally, we come to the end of the model. The output of the final transformer block is passed through\na layer normalization, and then we use a linear transformation (matrix multiplication), this time without a bias.\n\nThis final transformation takes each of our column vectors from length C to length nvocab. Hence,\nit's effectively producing a score for each word in the vocabulary for each of our columns. These\nscores have a special name: logits.\n\nThe name \"logits\" comes from \"log-odds,\" i.e., the logarithm of the odds of each token. \"Log\" is\nused because the softmax we apply next does an exponentiation to convert to \"odds\" or probabilities.\n\nTo convert these scores into nice probabilities, we pass them through a softmax operation. Now, for\neach column, we have a probability the model assigns to each word in the vocabulary.\n\nIn this particular model, it has effectively learned all the answers to the question of how to sort\nthree letters, so the probabilities are heavily weighted toward the correct answer.\n\nWhen we're stepping the model through time, we use the last column's probabilities to determine the\nnext token to add to the sequence. For example, if we've supplied six tokens into the model, we'll\nuse the output probabilities of the 6th column.\n\nThis column's output is a series of probabilities, and we actually have to pick one of them to use\nas the next in the sequence. We do this by \"sampling from the distribution.\" That is, we randomly\nchoose a token, weighted by its probability. For example, a token with a probability of 0.9 will be\nchosen 90% of the time.\n\nThere are other options here, however, such as always choosing the token with the highest probability.\n\nWe can also control the \"smoothness\" of the distribution by using a temperature parameter. A higher\ntemperature will make the distribution more uniform, and a lower temperature will make it more\nconcentrated on the highest probability tokens.\n\nWe do this by dividing the logits (the output of the linear transformation) by the temperature before\napplying the softmax. Since the exponentiation in the softmax has a large effect on larger numbers,\nmaking them all closer together will reduce this effect.\n"
       ],
-      "valueOrder": []
+      "valueOrder": [],
+      "valueText": []
     }
   ],
   "text": [
@@ -714,10 +873,6 @@
       "_time_"
     ],
     [
-      "_토큰 인덱스_",
-      "_token indices_"
-    ],
-    [
       "_토큰 임베딩 행렬(token embedding matrix)_",
       "_token embedding matrix_"
     ],
@@ -740,10 +895,6 @@
     [
       "개요",
       "Overview"
-    ],
-    [
-      "레이어 정규화",
-      "layer normalization"
     ],
     [
       "사전 지식",
@@ -882,12 +1033,31 @@
       "Q-weight matrix"
     ],
     [
-      "Q 벡터",
-      "Q vector"
-    ],
-    [
       "V 벡터",
       "V vector"
+    ]
+  ],
+  "ambiguousText": [
+    [
+      "_토큰 인덱스_",
+      [
+        "_token index_",
+        "_token indices_"
+      ]
+    ],
+    [
+      "레이어 정규화",
+      [
+        "Layer Norm",
+        "layer normalization"
+      ]
+    ],
+    [
+      "Q 벡터",
+      [
+        "Q vector",
+        "Q vectors"
+      ]
     ]
   ]
 }

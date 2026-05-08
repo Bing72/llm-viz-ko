@@ -233,6 +233,30 @@ function extractExpressionTextItems(source, file) {
     ].sort((a, b) => a.pos - b.pos);
 }
 
+function extractTextVariableBindings(source, file) {
+    const bindings = new Map();
+    const matcher = /\b(?:let|const)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:c_str|c_blockRef|c_dimRef)\s*\(\s*(['"`])/g;
+    let match;
+    while ((match = matcher.exec(source))) {
+        const { value, end } = readQuoted(source, match.index + match[0].length - 1);
+        if (normalize(value)) {
+            bindings.set(match[1], { kind: 'text', file, pos: match.index, value });
+        }
+        matcher.lastIndex = end;
+    }
+    return bindings;
+}
+
+function extractExpressionTextItemsWithBindings(source, file, bindings) {
+    const directItems = extractExpressionTextItems(source, file);
+    if (directItems.length > 0) {
+        return directItems;
+    }
+
+    const boundItem = bindings.get(normalize(source));
+    return boundItem ? [boundItem] : [];
+}
+
 function expressionSignature(source) {
     return source
         .replace(/(['"`])(?:\\.|(?!\1).)*\1/g, '$1__text__$1')
@@ -274,6 +298,32 @@ function pairTextItems(currentItems, upstreamItems, file) {
     return entries;
 }
 
+function partitionTextEntries(textEntries) {
+    const targetsBySource = new Map();
+
+    for (const [source, target] of textEntries) {
+        const targets = targetsBySource.get(source) ?? new Set();
+        targets.add(target);
+        targetsBySource.set(source, targets);
+    }
+
+    const text = [];
+    const ambiguousText = [];
+
+    for (const [source, targets] of targetsBySource) {
+        if (targets.size === 1) {
+            text.push([source, [...targets][0]]);
+        } else {
+            ambiguousText.push([source, [...targets].sort((a, b) => a.localeCompare(b, 'en'))]);
+        }
+    }
+
+    return {
+        text: text.sort((a, b) => a[0].localeCompare(b[0], 'ko')),
+        ambiguousText: ambiguousText.sort((a, b) => a[0].localeCompare(b[0], 'ko')),
+    };
+}
+
 function makeExpectedData() {
     const templates = [];
     const textEntries = [];
@@ -283,6 +333,8 @@ function makeExpectedData() {
         const upstreamSource = gitShow(file);
         const currentTemplates = extractCommentaryTemplates(currentSource, file);
         const upstreamTemplates = extractCommentaryTemplates(upstreamSource, file);
+        const currentBindings = extractTextVariableBindings(currentSource, file);
+        const upstreamBindings = extractTextVariableBindings(upstreamSource, file);
 
         if (currentTemplates.length !== upstreamTemplates.length) {
             throw new Error(`${file} commentary shape differs: current=${currentTemplates.length} upstream=${upstreamTemplates.length}`);
@@ -298,17 +350,23 @@ function makeExpectedData() {
                 throw new Error(`${file} commentary template ${i} expression count differs: current=${currentTemplates[i].expressions.length} upstream=${upstreamTemplates[i].expressions.length}`);
             }
             const order = expressionOrder(currentTemplates[i].expressions, upstreamTemplates[i].expressions);
-            if (source.some(hasHangul)) {
-                templates.push({ key: source.map(normalize), en: target, valueOrder: order });
-            }
+            const valueText = new Array(upstreamTemplates[i].expressions.length).fill(null);
 
             for (let exprIdx = 0; exprIdx < upstreamTemplates[i].expressions.length; exprIdx++) {
                 const currentExprIdx = order[exprIdx];
-                textEntries.push(...pairTextItems(
-                    extractExpressionTextItems(currentTemplates[i].expressions[currentExprIdx], file),
-                    extractExpressionTextItems(upstreamTemplates[i].expressions[exprIdx], file),
+                const expressionTextPairs = pairTextItems(
+                    extractExpressionTextItemsWithBindings(currentTemplates[i].expressions[currentExprIdx], file, currentBindings),
+                    extractExpressionTextItemsWithBindings(upstreamTemplates[i].expressions[exprIdx], file, upstreamBindings),
                     `${file} template ${i} expression ${exprIdx}`,
-                ));
+                );
+                textEntries.push(...expressionTextPairs);
+                if (expressionTextPairs.length === 1) {
+                    valueText[exprIdx] = expressionTextPairs[0][1];
+                }
+            }
+
+            if (source.some(hasHangul)) {
+                templates.push({ key: source.map(normalize), en: target, valueOrder: order, valueText });
             }
         }
 
@@ -319,9 +377,12 @@ function makeExpectedData() {
         ));
     }
 
+    const { text, ambiguousText } = partitionTextEntries(textEntries);
+
     return {
         templates,
-        text: [...new Map(textEntries).entries()].sort((a, b) => a[0].localeCompare(b[0], 'ko')),
+        text,
+        ambiguousText,
     };
 }
 
@@ -354,11 +415,14 @@ function main() {
     const generated = loadGeneratedData();
     const generatedTemplates = new Map(generated.templates.map(item => [templateKey(item.key), item.en]));
     const generatedTemplateOrders = new Map(generated.templates.map(item => [templateKey(item.key), item.valueOrder]));
+    const generatedTemplateValueText = new Map(generated.templates.map(item => [templateKey(item.key), item.valueText ?? []]));
     const generatedTexts = new Map(generated.text.map(([source, target]) => [normalize(source), normalize(target)]));
     const missingTemplates = [];
     const mismatchedTemplates = [];
     const missingTexts = [];
     const mismatchedTexts = [];
+    const ambiguousTextsInFallback = [];
+    const unhandledAmbiguousTextTargets = [];
 
     for (const expectedTemplate of expected.templates) {
         const key = templateKey(expectedTemplate.key);
@@ -374,6 +438,10 @@ function main() {
         if (JSON.stringify(actualOrder) !== JSON.stringify(expectedTemplate.valueOrder)) {
             mismatchedTemplates.push(expectedTemplate.key);
         }
+        const actualValueText = generatedTemplateValueText.get(key);
+        if (JSON.stringify(actualValueText) !== JSON.stringify(expectedTemplate.valueText)) {
+            mismatchedTemplates.push(expectedTemplate.key);
+        }
     }
 
     for (const [source, target] of expected.text) {
@@ -385,26 +453,71 @@ function main() {
         }
     }
 
+    for (const [source] of expected.ambiguousText) {
+        if (generatedTexts.has(source)) {
+            ambiguousTextsInFallback.push(source);
+        }
+    }
+
+    const contextualTextTargets = new Set();
+    for (const expectedTemplate of expected.templates) {
+        for (const target of expectedTemplate.valueText) {
+            if (target) {
+                contextualTextTargets.add(normalize(target));
+            }
+        }
+    }
+
+    const phaseTitleTargets = new Set([
+        'Introduction',
+        'Overview',
+        'Preliminary',
+        'Detailed',
+        'Embedding',
+        'Layer Norm',
+        'Self Attention',
+        'Projection',
+        'Transformer',
+        'Softmax',
+        'Output',
+    ].map(normalize));
+
+    for (const [source, targets] of expected.ambiguousText) {
+        for (const target of targets) {
+            if (!contextualTextTargets.has(normalize(target)) && !phaseTitleTargets.has(normalize(target))) {
+                unhandledAmbiguousTextTargets.push(`${source} => ${target}`);
+            }
+        }
+    }
+
     const languageSource = fs.readFileSync(path.join(repoRoot, 'src/llm/Language.tsx'), 'utf8');
     const commentarySource = fs.readFileSync(path.join(repoRoot, 'src/llm/Commentary.tsx'), 'utf8');
     const usesTemplateApi = languageSource.includes('localizeTemplate') && commentarySource.includes('localizeTemplate');
     const usesReactNodeApi = languageSource.includes('localizeReactNode') && commentarySource.includes('localizeReactNode');
+    const usesValueText = languageSource.includes('valueText') && commentarySource.includes('valueText');
 
     if (
         missingTemplates.length > 0 ||
         mismatchedTemplates.length > 0 ||
         missingTexts.length > 0 ||
         mismatchedTexts.length > 0 ||
+        ambiguousTextsInFallback.length > 0 ||
+        unhandledAmbiguousTextTargets.length > 0 ||
         !usesTemplateApi ||
-        !usesReactNodeApi
+        !usesReactNodeApi ||
+        !usesValueText
     ) {
         console.error(`Expected templates: ${expected.templates.length}`);
         console.error(`Expected text fallback entries: ${expected.text.length}`);
+        console.error(`Ambiguous text entries: ${expected.ambiguousText.length}`);
         if (!usesTemplateApi) {
             console.error('Commentary rendering is not using localizeTemplateStrings.');
         }
         if (!usesReactNodeApi) {
             console.error('Commentary rendering is not using localizeReactNode.');
+        }
+        if (!usesValueText) {
+            console.error('Commentary rendering is not using template-specific valueText entries.');
         }
         if (missingTemplates.length > 0) {
             console.error(`Missing templates: ${missingTemplates.length}`);
@@ -424,10 +537,22 @@ function main() {
         if (mismatchedTexts.length > 0) {
             console.error(`Mismatched text entries: ${mismatchedTexts.length}`);
         }
+        if (ambiguousTextsInFallback.length > 0) {
+            console.error(`Ambiguous text entries must not use global fallback: ${ambiguousTextsInFallback.length}`);
+            for (const source of ambiguousTextsInFallback.slice(0, 20)) {
+                console.error(`  - ${source}`);
+            }
+        }
+        if (unhandledAmbiguousTextTargets.length > 0) {
+            console.error(`Ambiguous text targets are not covered by valueText or phase title localization: ${unhandledAmbiguousTextTargets.length}`);
+            for (const source of unhandledAmbiguousTextTargets.slice(0, 20)) {
+                console.error(`  - ${source}`);
+            }
+        }
         process.exit(1);
     }
 
-    console.log(`English localization coverage OK: ${expected.templates.length} templates, ${expected.text.length} text fallback entries.`);
+    console.log(`English localization coverage OK: ${expected.templates.length} templates, ${expected.text.length} text fallback entries, ${expected.ambiguousText.length} ambiguous entries.`);
 }
 
 main();
