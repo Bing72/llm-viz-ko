@@ -12,7 +12,7 @@ import clsx from 'clsx';
 import { TocDiagram } from './components/TocDiagram';
 import { BlockText, DimensionText } from './components/CommentaryHelpers';
 import { useRequestAnimationFrame } from '../utils/hooks';
-import { localizeText, localizedLabel, useLanguage } from './Language';
+import { localizeReactNode, localizeTemplate, localizeText, localizedLabel, useLanguage } from './Language';
 
 export function jumpToPhase(wt: IWalkthrough, phaseId: Phase) {
     wt.time = 0;
@@ -311,6 +311,8 @@ export function walkthroughToParagraphs(wt: IWalkthrough, nodes: INode[], langua
         let paraKeyId = 0;
         let res: React.ReactNode[] = [];
         let paraItems: ReactNode[] = [];
+        let localizedTemplate = localizeTemplate(c.strings, language);
+        let strings = localizedTemplate.strings;
 
         function pushParagraph() {
             if (paraItems.length) {
@@ -322,7 +324,7 @@ export function walkthroughToParagraphs(wt: IWalkthrough, nodes: INode[], langua
 
         for (let i = 0; i < c.strings.length; i++) {
 
-            let strRaw = localizeText(c.strings[i], language);
+            let strRaw = strings[i] ?? localizeText(c.strings[i], language);
             if (strRaw.trim()) {
                 let paras = strRaw.split('\n\n');
                 for (let j = 0; j < paras.length; j++) {
@@ -334,18 +336,21 @@ export function walkthroughToParagraphs(wt: IWalkthrough, nodes: INode[], langua
                 }
             }
 
-            if (i < c.values.length) {
-                let val = c.values[i];
+            let valueIdx = localizedTemplate.valueOrder?.[i] ?? i;
+            if (valueIdx < c.values.length) {
+                let val = c.values[valueIdx];
                 if (isValidElement(val)) {
-                    paraItems.push(<React.Fragment key={paraKeyId++}>{val}</React.Fragment>)
+                    paraItems.push(<React.Fragment key={paraKeyId++}>{localizeReactNode(val, language)}</React.Fragment>)
                 }
                 if (val.insertInline) {
-                    paraItems.push(<React.Fragment key={paraKeyId++}>{val.insertInline}</React.Fragment>);
+                    paraItems.push(<React.Fragment key={paraKeyId++}>{localizeReactNode(val.insertInline, language)}</React.Fragment>);
                 }
                 if (val.insert) {
                     pushParagraph();
                     let fnVal = typeof val.insert === 'function' ? val.insert() : val.insert;
-                    let el = typeof fnVal === 'string' ? fnVal : React.createElement(fnVal as React.FC, { key: 'i' + i });
+                    let el = typeof fnVal === 'string'
+                        ? localizeText(fnVal, language)
+                        : React.createElement(fnVal as React.FC, { key: 'i' + i });
                     res.push(el);
                 }
                 if (val.color) {

@@ -12,6 +12,7 @@ import { IProgramState } from "../Program";
 import { lerp } from "@/src/utils/math";
 import { drawDependences } from "../Interaction";
 import { drawDataFlow } from "../components/DataFlow";
+import { localizeText, useLanguage } from "../Language";
 
 /*
 We're mostly on the right track here I think.
@@ -388,15 +389,16 @@ const ExampleTokenValues: React.FC = () => {
 };
 
 const TokenVocab: React.FC = () => {
+    let { language } = useLanguage();
 
     return <div className={s.tableWrap}>
         <table className={s.table}>
             <tbody>
                 <tr className={s.tokString} style={{ color: dimStyleColor(DimStyle.Token).toHexColor() }}>
-                    <th>토큰</th><td>A</td><td>B</td><td>C</td>
+                    <th>{localizeText('토큰', language)}</th><td>A</td><td>B</td><td>C</td>
                 </tr>
                 <tr className={s.tokIndex} style={{ color: dimStyleColor(DimStyle.TokenIdx).toHexColor() }}>
-                    <th>인덱스</th><td>0</td><td>1</td><td>2</td>
+                    <th>{localizeText('인덱스', language)}</th><td>0</td><td>1</td><td>2</td>
                 </tr>
             </tbody>
         </table>
@@ -404,6 +406,7 @@ const TokenVocab: React.FC = () => {
 };
 
 const GreenBlueCells: React.FC = () => {
+    let { language } = useLanguage();
 
     let [blueNums, setBlueNums] = useState([-0.7, 0.7, -0.1]);
     let [greenNums, setGreenNums] = useState([-0.7, 0.4, 0.8]);
@@ -416,12 +419,12 @@ const GreenBlueCells: React.FC = () => {
             <div className={s.cellInfoCol}>
                 <Cell nums={greenNums} color={greenColor} mul={0.5} />
                 <Graph nums={greenNums} color={greenColor} setNums={setGreenNums} />
-                <div className={s.cellInfoText}>처리 중인 값</div>
+                <div className={s.cellInfoText}>{localizeText('처리 중인 값', language)}</div>
             </div>
             <div className={s.cellInfoCol}>
                 <Cell nums={blueNums} color={blueColor} mul={1} />
                 <Graph nums={blueNums} color={blueColor} setNums={setBlueNums} />
-                <div className={s.cellInfoText}>가중치</div>
+                <div className={s.cellInfoText}>{localizeText('가중치', language)}</div>
             </div>
         </div>
     </div>
